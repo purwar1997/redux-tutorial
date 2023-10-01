@@ -69,7 +69,11 @@ const App = () => {
             onChange={e => setIncrementValue(e.target.value)}
           />
 
-          <button className='w-24 border border-gray-500 py-2 rounded' onClick={addValue}>
+          <button
+            className='w-24 border border-gray-500 py-2 rounded'
+            onClick={addValue}
+            disabled={incrementValue.trim() === ''}
+          >
             Add
           </button>
         </div>
@@ -84,7 +88,11 @@ const App = () => {
             onChange={e => setDecrementValue(e.target.value)}
           />
 
-          <button className='w-24 border border-gray-500 py-2 rounded' onClick={subtractValue}>
+          <button
+            className='w-24 border border-gray-500 py-2 rounded'
+            onClick={subtractValue}
+            disabled={decrementValue.trim() === ''}
+          >
             Subtract
           </button>
         </div>
