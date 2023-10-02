@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 import { compareDesc, parseISO } from 'date-fns';
 import PostAuthor from './PostAuthor';
 import TimeAgo from './TimeAgo';
+import ReactionButtons from './ReactionButtons';
 
 const PostsList = () => {
   const posts = useSelector(store => store.posts);
@@ -16,12 +17,13 @@ const PostsList = () => {
 
       <div className='mt-5 space-y-4'>
         {orderedPosts.map(post => (
-          <article className='border border-gray-500 px-5 py-4 rounded-xl space-y-2' key={post.id}>
+          <article className='border border-gray-500 px-5 py-4 rounded-xl' key={post.id}>
             <h3 className='text-xl'>{post.title}</h3>
-            <p>{post.content}</p>
-            <p>
+            <p className='mt-2.5'>{post.content}</p>
+            <p className='mt-2.5'>
               <PostAuthor authorId={post.userId} />, <TimeAgo timestamp={post.date} />
             </p>
+            <ReactionButtons post={post} />
           </article>
         ))}
       </div>
