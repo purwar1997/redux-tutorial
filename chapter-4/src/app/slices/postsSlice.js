@@ -2,7 +2,7 @@ import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit';
 import { sub } from 'date-fns';
 import axios from 'axios';
 
-const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
+const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts/';
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   const response = await axios.get(POSTS_URL);
@@ -10,10 +10,14 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   return posts;
 });
 
-export const addNewPost = createAsyncThunk('posts/addNewPost', async newPost => {
-  const response = await axios.post('https://jsonplaceholder.typicode.com/posts', newPost);
-  const post = response.data;
-  return post;
+export const addNewPost = createAsyncThunk('posts/addNewPost', async post => {
+  const response = await axios.post(POSTS_URL, post);
+  return response.data;
+});
+
+export const editPost = createAsyncThunk('posts/editPost', async post => {
+  const response = await axios.put(POSTS_URL + post.id, post);
+  return response.data;
 });
 
 const initialState = {
@@ -59,6 +63,17 @@ const postsSlice = createSlice({
         post.reactions[reaction]++;
       }
     },
+
+    editPost(state, action) {
+      const { postId, title, content, userId } = action.payload;
+
+      const post = state.posts.find(post => post.id === postId);
+
+      post.title = title;
+      post.body = content;
+      post.userId = Number(userId);
+      post.date = new Date().toISOString;
+    },
   },
   extraReducers(builder) {
     builder
@@ -91,7 +106,6 @@ const postsSlice = createSlice({
       .addCase(addNewPost.fulfilled, (state, action) => {
         const post = action.payload;
 
-        post.id = nanoid();
         post.date = new Date().toISOString();
         post.userId = Number(post.userId);
         post.reactions = {
@@ -103,6 +117,16 @@ const postsSlice = createSlice({
         };
 
         state.posts.push(post);
+      })
+      .addCase(editPost.fulfilled, (state, action) => {
+        const { id, title, body, userId } = action.payload;
+
+        const post = state.posts.find(post => post.id === id);
+
+        post.title = title;
+        post.body = body;
+        post.userId = userId;
+        post.date = new Date().toISOString();
       });
   },
 });
