@@ -13,11 +13,12 @@ const AddPostForm = () => {
 
   const canSave = [title, content, userId].every(Boolean) && requestStatus === 'idle';
 
-  const savePost = () => {
+  const savePost = async () => {
     try {
       // unwrap() returns a promise after an async operation has succeeded or failed
       setRequestStatus('pending');
-      dispatch(addNewPost({ title, body: content, userId })).unwrap();
+
+      await dispatch(addNewPost({ title, body: content, userId })).unwrap();
 
       setTitle('');
       setContent('');

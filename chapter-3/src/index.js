@@ -6,7 +6,7 @@ import appStore from './app/store';
 import App from './App';
 import './index.css';
 
-// action will get dispatched before app is initialized
+// action will get dispatched before app is initialized or App component is rendered
 appStore.dispatch(fetchUsers());
 
 const root = createRoot(document.getElementById('root'));

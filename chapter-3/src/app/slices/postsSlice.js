@@ -11,7 +11,7 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
 });
 
 export const addNewPost = createAsyncThunk('posts/addNewPost', async newPost => {
-  const response = await axios.post('https://jsonplaceholder.typicode.com/poss', newPost);
+  const response = await axios.post('https://jsonplaceholder.typicode.com/posts', newPost);
   const post = response.data;
   return post;
 });
