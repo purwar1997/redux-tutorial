@@ -78,7 +78,9 @@ const AddPostForm = () => {
             defaultValue=''
             onChange={e => setUserId(e.target.value)}
           >
-            <option value='' disabled hidden />
+            <option value='' disabled hidden>
+              -- Select an option--
+            </option>
 
             {users.map(user => (
               <option key={user.id} value={user.id}>

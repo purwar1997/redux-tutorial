@@ -86,9 +86,13 @@ const EditPostForm = () => {
           <select
             className='border border-gray-500 px-3 py-2.5 rounded flex-1 focus:outline-none'
             id='postAuthor'
-            defaultValue={userId}
+            defaultValue={userId || ''}
             onChange={e => setUserId(e.target.value)}
           >
+            <option value='' disabled hidden>
+              -- Select an option --
+            </option>
+
             {users.map(user => (
               <option key={user.id} value={user.id}>
                 {user.name}
@@ -97,9 +101,9 @@ const EditPostForm = () => {
           </select>
         </div>
 
-        <div className='flex gap-3'>
+        <div className='ml-[125px] flex gap-3'>
           <button
-            className='ml-[125px] border border-gray-500 rounded px-5 py-1.5'
+            className='w-20 border border-gray-500 rounded py-1.5'
             type='button'
             disabled={!canSave}
             onClick={onSavePostClicked}
