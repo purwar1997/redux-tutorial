@@ -11,9 +11,11 @@ const App = () => {
       <Routes>
         <Route path='/' element={<Layout />}>
           <Route index element={<PostsList />} />
-          <Route path='post' element={<AddPostForm />} />
-          <Route path='post/:postId' element={<SinglePostPage />} />
-          <Route path='post/:postId/edit' element={<EditPostForm />} />
+          <Route path='post'>
+            <Route index element={<AddPostForm />} />
+            <Route path=':postId' element={<SinglePostPage />} />
+            <Route path=':postId/edit' element={<EditPostForm />} />
+          </Route>
         </Route>
       </Routes>
     </Router>

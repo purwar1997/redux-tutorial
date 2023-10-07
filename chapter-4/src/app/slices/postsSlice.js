@@ -2,7 +2,7 @@ import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit';
 import { sub } from 'date-fns';
 import axios from 'axios';
 
-const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts/';
+const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   const response = await axios.get(POSTS_URL);
@@ -14,9 +14,18 @@ export const addNewPost = createAsyncThunk('posts/addNewPost', async post => {
   return response.data;
 });
 
-export const editPost = createAsyncThunk('posts/editPost', async post => {
-  const response = await axios.put(POSTS_URL + post.id, post);
-  return response.data;
+export const updatePost = createAsyncThunk('posts/updatePost', async post => {
+  try {
+    const response = await axios.put(`${POSTS_URL}/${post.id}`, post);
+    return response.data;
+  } catch (error) {
+    return post;
+  }
+});
+
+export const deletePost = createAsyncThunk('posts/deletePost', async postId => {
+  await axios.delete(`${POSTS_URL}/${postId}`);
+  return postId;
 });
 
 const initialState = {
@@ -62,17 +71,6 @@ const postsSlice = createSlice({
         post.reactions[reaction]++;
       }
     },
-
-    editPost(state, action) {
-      const { postId, title, content, userId } = action.payload;
-
-      const post = state.posts.find(post => post.id === postId);
-
-      post.title = title;
-      post.body = content;
-      post.userId = Number(userId);
-      post.date = new Date().toISOString;
-    },
   },
   extraReducers(builder) {
     builder
@@ -117,15 +115,31 @@ const postsSlice = createSlice({
 
         state.posts.push(post);
       })
-      .addCase(editPost.fulfilled, (state, action) => {
+      .addCase(updatePost.fulfilled, (state, action) => {
         const { id, title, body, userId } = action.payload;
 
         const post = state.posts.find(post => post.id === id);
+
+        if (!post) {
+          throw new Error('Post not found');
+        }
 
         post.title = title;
         post.body = body;
         post.userId = userId;
         post.date = new Date().toISOString();
+
+        const posts = state.posts.filter(post => post.id !== id);
+        state.posts = [...posts, post];
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        const post = state.posts.find(post => post.id === action.payload);
+
+        if (!post) {
+          throw new Error('Post not found');
+        }
+
+        state.posts = state.posts.filter(post => post.id !== action.payload);
       });
   },
 });

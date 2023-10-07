@@ -1,28 +1,33 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewPost } from '../app/slices/postsSlice';
 
 const AddPostForm = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState('');
   const [requestStatus, setRequestStatus] = useState('idle');
 
   const users = useSelector(store => store.users);
   const dispatch = useDispatch();
 
+  const navigate = useNavigate();
+
   const canSave = [title, content, userId].every(Boolean) && requestStatus === 'idle';
 
-  const savePost = async () => {
+  const onSavePostClicked = async () => {
     try {
       // unwrap() returns a promise after an async operation has succeeded or failed
       setRequestStatus('pending');
 
-      await dispatch(addNewPost({ title, body: content, userId })).unwrap();
+      const post = await dispatch(addNewPost({ title, body: content, userId })).unwrap();
 
       setTitle('');
       setContent('');
-      setUserId(null);
+      setUserId('');
+
+      navigate(`/post/${post.id}`);
     } catch (error) {
       console.log('Failure adding post', error);
     } finally {
@@ -70,11 +75,10 @@ const AddPostForm = () => {
           <select
             className='flex-1 border border-gray-500 px-3 py-2.5 rounded focus:outline-none cursor-pointer'
             id='postAuthor'
+            defaultValue=''
             onChange={e => setUserId(e.target.value)}
           >
-            <option value='' selected={userId === null} disabled hidden>
-              -- Choose an option --
-            </option>
+            <option value='' disabled hidden />
 
             {users.map(user => (
               <option key={user.id} value={user.id}>
@@ -84,14 +88,24 @@ const AddPostForm = () => {
           </select>
         </div>
 
-        <button
-          className='ml-[125px] border border-gray-500 px-5 py-1.5 rounded'
-          type='button'
-          onClick={savePost}
-          disabled={!canSave}
-        >
-          Save
-        </button>
+        <div className='ml-[125px] flex gap-3'>
+          <button
+            className='w-20 border border-gray-500 rounded py-1.5'
+            type='button'
+            onClick={onSavePostClicked}
+            disabled={!canSave}
+          >
+            Save
+          </button>
+
+          <button
+            className='w-20 border border-gray-500 rounded py-1.5'
+            type='button'
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </section>
   );

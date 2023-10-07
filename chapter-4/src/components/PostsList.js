@@ -1,21 +1,11 @@
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { compareDesc, parseISO } from 'date-fns';
-import { fetchPosts } from '../app/slices/postsSlice';
 import PostExcerpt from './PostExcerpt';
 
 const PostsList = () => {
   const posts = useSelector(store => store.posts.posts);
   const status = useSelector(store => store.posts.status);
   const error = useSelector(store => store.posts.error);
-
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchPosts());
-    }
-  }, [status, dispatch]);
 
   let content;
 

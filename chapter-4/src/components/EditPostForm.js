@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { editPost } from '../app/slices/postsSlice';
+import { updatePost } from '../app/slices/postsSlice';
 
 const EditPostForm = () => {
   const { postId } = useParams();
@@ -11,24 +11,36 @@ const EditPostForm = () => {
   const users = useSelector(store => store.users);
   const dispatch = useDispatch();
 
-  const [title, setTitle] = useState(post.title);
-  const [content, setContent] = useState(post.body);
-  const [userId, setUserId] = useState(post.userId);
+  const [title, setTitle] = useState(post?.title);
+  const [content, setContent] = useState(post?.body);
+  const [userId, setUserId] = useState(post?.userId);
   const [requestStatus, setRequestStatus] = useState('idle');
 
   const canSave = [title, content, userId].every(Boolean) && requestStatus === 'idle';
 
-  const savePost = async () => {
+  if (!post) {
+    return (
+      <section>
+        <h2>Post not found</h2>
+      </section>
+    );
+  }
+
+  const onSavePostClicked = async () => {
     try {
       setRequestStatus('pending');
 
       await dispatch(
-        editPost({ id: Number(postId), title, body: content, userId: Number(userId) })
+        updatePost({ id: Number(postId), title, body: content, userId: Number(userId) })
       ).unwrap();
+
+      setTitle('');
+      setContent('');
+      setUserId('');
 
       navigate(`/post/${postId}`, { replace: true });
     } catch (error) {
-      console.log('Failure editing post', error);
+      console.log('Failure updating post', error);
     } finally {
       setRequestStatus('idle');
     }
@@ -74,28 +86,35 @@ const EditPostForm = () => {
           <select
             className='border border-gray-500 px-3 py-2.5 rounded flex-1 focus:outline-none'
             id='postAuthor'
+            defaultValue={userId}
             onChange={e => setUserId(e.target.value)}
           >
-            <option value='' disabled hidden>
-              -- Choose an option --
-            </option>
-
             {users.map(user => (
-              <option key={user.id} value={user.id} selected={user.id === userId}>
+              <option key={user.id} value={user.id}>
                 {user.name}
               </option>
             ))}
           </select>
         </div>
 
-        <button
-          className='ml-[125px] border border-gray-500 rounded px-5 py-1.5'
-          type='button'
-          disabled={!canSave}
-          onClick={savePost}
-        >
-          Save
-        </button>
+        <div className='flex gap-3'>
+          <button
+            className='ml-[125px] border border-gray-500 rounded px-5 py-1.5'
+            type='button'
+            disabled={!canSave}
+            onClick={onSavePostClicked}
+          >
+            Save
+          </button>
+
+          <button
+            className='w-20 border border-gray-500 rounded py-1.5'
+            type='button'
+            onClick={() => navigate(-1)}
+          >
+            Cancel
+          </button>
+        </div>
       </form>
     </section>
   );
