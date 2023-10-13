@@ -7,7 +7,8 @@ const Header = () => {
 
       <nav className='space-x-10'>
         <Link to='/'>Home</Link>
-        <Link to='/post'>Post</Link>
+        <Link to='post'>Post</Link>
+        <Link to='users'>Users</Link>
       </nav>
     </header>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { updatePost } from "../app/slices/postsSlice";
@@ -15,6 +15,14 @@ const EditPostForm = () => {
   const [content, setContent] = useState(post?.body);
   const [userId, setUserId] = useState(post?.userId);
   const [requestStatus, setRequestStatus] = useState("idle");
+
+  useEffect(() => {
+    if (post && users.length > 0) {
+      setTitle(post.title);
+      setContent(post.body);
+      setUserId(post.userId);
+    }
+  }, [post, users]);
 
   const canSave = [title, content, userId].every(Boolean) && requestStatus === "idle";
 
@@ -60,7 +68,7 @@ const EditPostForm = () => {
             className='border border-gray-500 px-4 py-2.5 rounded flex-1 focus:outline-none'
             type='text'
             id='postTitle'
-            value={title}
+            value={title || ""}
             onChange={e => setTitle(e.target.value)}
           />
         </div>
@@ -73,7 +81,7 @@ const EditPostForm = () => {
           <textarea
             className='border border-gray-500 px-4 py-2.5 rounded flex-1 h-32 focus:outline-none'
             id='postContent'
-            value={content}
+            value={content || ""}
             onChange={e => setContent(e.target.value)}
           />
         </div>
@@ -114,7 +122,7 @@ const EditPostForm = () => {
           <button
             className='w-20 border border-gray-500 rounded py-1.5'
             type='button'
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("..", { relative: "path" })}
           >
             Cancel
           </button>
