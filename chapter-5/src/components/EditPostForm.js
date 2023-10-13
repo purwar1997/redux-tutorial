@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { updatePost } from "../app/slices/postsSlice";
+import { updatePost, getPostById } from "../app/slices/postsSlice";
+import { getAllUsers } from "../app/slices/usersSlice";
 
 const EditPostForm = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(store => store.posts.posts.find(post => post.id === Number(postId)));
-  const users = useSelector(store => store.users);
+  const post = useSelector(store => getPostById(store, Number(postId)));
+  const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
 
   const [title, setTitle] = useState(post?.title);

@@ -1,14 +1,13 @@
 import { useSelector } from "react-redux";
 import { useParams, Link } from "react-router-dom";
+import { getUserById } from "../app/slices/usersSlice";
+import { getPostsByUser } from "../app/slices/postsSlice";
 
 const UserPage = () => {
   const { userId } = useParams();
 
-  const user = useSelector(store => store.users.find(user => user.id === Number(userId)));
-
-  const posts = useSelector(store =>
-    store.posts.posts.filter(post => post.userId === Number(userId))
-  );
+  const user = useSelector(store => getUserById(store, Number(userId)));
+  const posts = useSelector(store => getPostsByUser(store, Number(userId)));
 
   return (
     <section>
@@ -16,8 +15,10 @@ const UserPage = () => {
 
       <ul className='mt-5 list-disc space-y-1'>
         {posts.map(post => (
-          <li className='text-purple-700 hover:underline' key={post.id}>
-            <Link to={`/post/${post.id}`}>{post.title}</Link>
+          <li key={post.id}>
+            <Link className='text-purple-700 hover:underline' to={`/post/${post.id}`}>
+              {post.title}
+            </Link>
           </li>
         ))}
       </ul>

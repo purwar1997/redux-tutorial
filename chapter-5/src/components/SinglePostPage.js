@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { deletePost } from "../app/slices/postsSlice";
+import { deletePost, getPostById } from "../app/slices/postsSlice";
 import PostAuthor from "./PostAuthor";
 import TimeAgo from "./TimeAgo";
 import ReactionButtons from "./ReactionButtons";
@@ -12,7 +12,7 @@ const SinglePostPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(store => store.posts.posts.find(post => post.id === Number(postId)));
+  const post = useSelector(store => getPostById(store, Number(postId)));
   const dispatch = useDispatch();
 
   if (!post) {

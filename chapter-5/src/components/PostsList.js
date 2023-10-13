@@ -1,11 +1,12 @@
 import { useSelector } from 'react-redux';
 import { compareDesc, parseISO } from 'date-fns';
+import { getAllPosts, getPostStatus, getPostError } from '../app/slices/postsSlice';
 import PostExcerpt from './PostExcerpt';
 
 const PostsList = () => {
-  const posts = useSelector(store => store.posts.posts);
-  const status = useSelector(store => store.posts.status);
-  const error = useSelector(store => store.posts.error);
+  const posts = useSelector(getAllPosts);
+  const status = useSelector(getPostStatus);
+  const error = useSelector(getPostError);
 
   let content;
 

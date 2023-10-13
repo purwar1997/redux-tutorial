@@ -1,8 +1,9 @@
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { getAllUsers } from "../app/slices/usersSlice";
 
 const UsersList = () => {
-  const users = useSelector(store => store.users);
+  const users = useSelector(getAllUsers);
 
   return (
     <section>
@@ -10,8 +11,10 @@ const UsersList = () => {
 
       <ul className='mt-5 list-disc space-y-1'>
         {users.map(user => (
-          <li className='text-purple-700 hover:underline' key={user.id}>
-            <Link to={`/users/${user.id}`}>{user.name}</Link>
+          <li key={user.id}>
+            <Link className='text-purple-700 hover:underline' to={`/users/${user.id}`}>
+              {user.name}
+            </Link>
           </li>
         ))}
       </ul>

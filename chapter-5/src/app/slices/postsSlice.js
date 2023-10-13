@@ -1,20 +1,20 @@
-import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit';
-import { sub } from 'date-fns';
-import axios from 'axios';
+import { createSlice, nanoid, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
+import { sub } from "date-fns";
+import axios from "axios";
 
-const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
+const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
 
-export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
+export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
   const response = await axios.get(POSTS_URL);
   return response.data;
 });
 
-export const addNewPost = createAsyncThunk('posts/addNewPost', async post => {
+export const addNewPost = createAsyncThunk("posts/addNewPost", async post => {
   const response = await axios.post(POSTS_URL, post);
   return response.data;
 });
 
-export const updatePost = createAsyncThunk('posts/updatePost', async post => {
+export const updatePost = createAsyncThunk("posts/updatePost", async post => {
   try {
     const response = await axios.put(`${POSTS_URL}/${post.id}`, post);
     return response.data;
@@ -23,19 +23,20 @@ export const updatePost = createAsyncThunk('posts/updatePost', async post => {
   }
 });
 
-export const deletePost = createAsyncThunk('posts/deletePost', async postId => {
+export const deletePost = createAsyncThunk("posts/deletePost", async postId => {
   await axios.delete(`${POSTS_URL}/${postId}`);
   return postId;
 });
 
 const initialState = {
   posts: [],
-  status: 'idle',
+  status: "idle",
   error: null,
+  count: 0,
 };
 
 const postsSlice = createSlice({
-  name: 'posts',
+  name: "posts",
   initialState,
   reducers: {
     addPost: {
@@ -74,11 +75,15 @@ const postsSlice = createSlice({
       const posts = state.posts.filter(post => post.id !== postId);
       state.posts = [...posts, post];
     },
+
+    increaseCount(state) {
+      state.count = state.count + 1;
+    },
   },
   extraReducers(builder) {
     builder
       .addCase(fetchPosts.pending, (state, action) => {
-        state.status = 'loading';
+        state.status = "loading";
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
         let minute = 1;
@@ -96,11 +101,11 @@ const postsSlice = createSlice({
           return post;
         });
 
-        state.status = 'succeeded';
+        state.status = "succeeded";
         state.posts = state.posts.concat(loadedPosts);
       })
       .addCase(fetchPosts.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status = "failed";
         state.error = action.error.message;
       })
       .addCase(addNewPost.fulfilled, (state, action) => {
@@ -124,7 +129,7 @@ const postsSlice = createSlice({
         const post = state.posts.find(post => post.id === id);
 
         if (!post) {
-          throw new Error('Post not found');
+          throw new Error("Post not found");
         }
 
         post.title = title;
@@ -139,7 +144,7 @@ const postsSlice = createSlice({
         const post = state.posts.find(post => post.id === action.payload);
 
         if (!post) {
-          throw new Error('Post not found');
+          throw new Error("Post not found");
         }
 
         state.posts = state.posts.filter(post => post.id !== action.payload);
@@ -147,6 +152,17 @@ const postsSlice = createSlice({
   },
 });
 
-export const { addPost, addReaction } = postsSlice.actions;
+export const getAllPosts = store => store.posts.posts;
+export const getPostStatus = store => store.posts.status;
+export const getPostError = store => store.posts.error;
+export const getPostCount = store => store.posts.count;
+export const getPostById = (store, postId) => store.posts.posts.find(post => post.id === postId);
+
+export const getPostsByUser = createSelector(
+  [getAllPosts, (store, userId) => userId],
+  (posts, userId) => posts.filter(post => post.userId === userId)
+);
+
+export const { addReaction, increaseCount } = postsSlice.actions;
 
 export default postsSlice.reducer;
