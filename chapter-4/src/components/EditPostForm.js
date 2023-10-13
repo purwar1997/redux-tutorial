@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { updatePost } from '../app/slices/postsSlice';
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { updatePost } from "../app/slices/postsSlice";
 
 const EditPostForm = () => {
   const { postId } = useParams();
@@ -14,9 +14,9 @@ const EditPostForm = () => {
   const [title, setTitle] = useState(post?.title);
   const [content, setContent] = useState(post?.body);
   const [userId, setUserId] = useState(post?.userId);
-  const [requestStatus, setRequestStatus] = useState('idle');
+  const [requestStatus, setRequestStatus] = useState("idle");
 
-  const canSave = [title, content, userId].every(Boolean) && requestStatus === 'idle';
+  const canSave = [title, content, userId].every(Boolean) && requestStatus === "idle";
 
   if (!post) {
     return (
@@ -28,21 +28,21 @@ const EditPostForm = () => {
 
   const onSavePostClicked = async () => {
     try {
-      setRequestStatus('pending');
+      setRequestStatus("pending");
 
       await dispatch(
         updatePost({ id: Number(postId), title, body: content, userId: Number(userId) })
       ).unwrap();
 
-      setTitle('');
-      setContent('');
-      setUserId('');
+      setTitle("");
+      setContent("");
+      setUserId("");
 
       navigate(`/post/${postId}`, { replace: true });
     } catch (error) {
-      console.log('Failure updating post', error);
+      console.log("Failure updating post", error);
     } finally {
-      setRequestStatus('idle');
+      setRequestStatus("idle");
     }
   };
 
@@ -86,7 +86,7 @@ const EditPostForm = () => {
           <select
             className='border border-gray-500 px-3 py-2.5 rounded flex-1 focus:outline-none'
             id='postAuthor'
-            defaultValue={userId || ''}
+            defaultValue={userId || ""}
             onChange={e => setUserId(e.target.value)}
           >
             <option value='' disabled hidden>

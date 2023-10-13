@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { deletePost } from '../app/slices/postsSlice';
-import PostAuthor from './PostAuthor';
-import TimeAgo from './TimeAgo';
-import ReactionButtons from './ReactionButtons';
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { deletePost } from "../app/slices/postsSlice";
+import PostAuthor from "./PostAuthor";
+import TimeAgo from "./TimeAgo";
+import ReactionButtons from "./ReactionButtons";
 
 const SinglePostPage = () => {
-  const [requestStatus, setRequestStatus] = useState('idle');
+  const [requestStatus, setRequestStatus] = useState("idle");
 
   const { postId } = useParams();
   const navigate = useNavigate();
@@ -25,13 +25,13 @@ const SinglePostPage = () => {
 
   const onDeletePostClicked = async () => {
     try {
-      setRequestStatus('pending');
+      setRequestStatus("pending");
       await dispatch(deletePost(Number(postId))).unwrap();
-      navigate('/', { replace: true });
+      navigate("/", { replace: true });
     } catch (error) {
-      console.log('Failure deleting post', error);
+      console.log("Failure deleting post", error);
     } finally {
-      setRequestStatus('idle');
+      setRequestStatus("idle");
     }
   };
 
@@ -49,7 +49,7 @@ const SinglePostPage = () => {
       <div className='mt-4 flex gap-3'>
         <button
           className='w-20 border border-gray-500 rounded py-1.5'
-          onClick={() => navigate('edit')}
+          onClick={() => navigate("edit")}
         >
           Edit
         </button>
@@ -57,7 +57,7 @@ const SinglePostPage = () => {
         <button
           className='w-20 border border-gray-500 rounded py-1.5'
           onClick={onDeletePostClicked}
-          disabled={requestStatus === 'pending'}
+          disabled={requestStatus !== "idle"}
         >
           Delete
         </button>
