@@ -70,6 +70,9 @@ const postsSlice = createSlice({
       if (post) {
         post.reactions[reaction]++;
       }
+
+      const posts = state.posts.filter(post => post.id !== postId);
+      state.posts = [...posts, post];
     },
   },
   extraReducers(builder) {
