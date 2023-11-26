@@ -13,6 +13,7 @@ const AddPostForm = () => {
   const canSave = Boolean(title.trim()) && Boolean(content.trim()) && Boolean(userId);
 
   const savePost = () => {
+
     dispatch(addPost(title, content, userId));
     setTitle('');
     setContent('');
@@ -61,7 +62,7 @@ const AddPostForm = () => {
             id='postAuthor'
             onChange={e => setUserId(e.target.value)}
           >
-            <option value='' selected={userId === null}>
+            <option value='' disabled hidden selected={userId === null}>
               -- Please choose an option --
             </option>
 
