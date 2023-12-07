@@ -3,30 +3,29 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addPost } from '../app/slices/postsSlice';
 
 const AddPostForm = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [userId, setUserId] = useState(null);
+  const [postTitle, setPostTitle] = useState('');
+  const [postContent, setPostContent] = useState('');
+  const [postAuthor, setPostAuthor] = useState('');
 
   const users = useSelector(store => store.users);
   const dispatch = useDispatch();
 
-  const canSave = Boolean(title.trim()) && Boolean(content.trim()) && Boolean(userId);
+  const canSave = [postTitle, postContent, postAuthor].every(Boolean);
 
-  const savePost = () => {
-
-    dispatch(addPost(title, content, userId));
-    setTitle('');
-    setContent('');
-    setUserId(null);
+  const onSavePostClicked = () => {
+    dispatch(addPost(postTitle, postContent, postAuthor));
+    setPostTitle('');
+    setPostContent('');
+    setPostAuthor('');
   };
 
   return (
     <section>
       <h2 className='text-2xl'>Add post</h2>
 
-      <form className='mt-6 space-y-4'>
-        <div className='flex gap-6'>
-          <label className='w-24' htmlFor='postTitle'>
+      <form className='mt-8 space-y-4'>
+        <div className='flex gap-4'>
+          <label className='w-28' htmlFor='postTitle'>
             Post title
           </label>
 
@@ -34,35 +33,35 @@ const AddPostForm = () => {
             className='flex-1 border border-gray-500 px-4 py-2.5 rounded focus:outline-none'
             type='text'
             id='postTitle'
-            value={title}
-            onChange={e => setTitle(e.target.value)}
+            value={postTitle}
+            onChange={e => setPostTitle(e.target.value)}
           />
         </div>
 
-        <div className='flex gap-6'>
-          <label className='w-24' htmlFor='postContent'>
+        <div className='flex gap-4'>
+          <label className='w-28' htmlFor='postContent'>
             Post content
           </label>
 
           <textarea
-            className='flex-1 border border-gray-500 h-40 px-4 py-2.5 rounded focus:outline-none'
+            className='flex-1 border border-gray-500 h-40 resize-none px-4 py-2.5 rounded focus:outline-none'
             id='postContent'
-            value={content}
-            onChange={e => setContent(e.target.value)}
+            value={postContent}
+            onChange={e => setPostContent(e.target.value)}
           />
         </div>
 
-        <div className='flex gap-6'>
-          <label className='w-24' htmlFor='postAuthor'>
+        <div className='flex gap-4'>
+          <label className='w-28' htmlFor='postAuthor'>
             Post author
           </label>
 
           <select
             className='flex-1 border border-gray-500 px-3 py-2 rounded focus:outline-none'
             id='postAuthor'
-            onChange={e => setUserId(e.target.value)}
+            onChange={e => setPostAuthor(e.target.value)}
           >
-            <option value='' disabled hidden selected={userId === null}>
+            <option disabled hidden selected={postAuthor === ''}>
               -- Please choose an option --
             </option>
 
@@ -75,9 +74,9 @@ const AddPostForm = () => {
         </div>
 
         <button
-          className='ml-[120px] border border-gray-500 px-5 py-1.5 rounded'
+          className='ml-32 border border-gray-500 px-5 py-1.5 rounded'
           type='button'
-          onClick={savePost}
+          onClick={onSavePostClicked}
           disabled={!canSave}
         >
           Save
