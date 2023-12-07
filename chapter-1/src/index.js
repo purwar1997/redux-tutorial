@@ -7,6 +7,8 @@ import './index.css';
 
 const root = createRoot(document.getElementById('root'));
 
+// Redux store can be imported here because index.js is not a component
+
 root.render(
   <Provider store={appStore}>
     <App />

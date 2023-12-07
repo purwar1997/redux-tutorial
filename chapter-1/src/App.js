@@ -6,29 +6,38 @@ import {
   reset,
   incrementByValue,
   decrementByValue,
+  incrementValueAsync,
+  decrementValueAsync,
 } from './app/slices/counterSlice';
 
 const App = () => {
   const [incrementValue, setIncrementValue] = useState('');
   const [decrementValue, setDecrementValue] = useState('');
 
-  const count = useSelector(store => store.counter.count);
+  // value of store.getState() is passed as an argument to selector function
+  const count = useSelector(state => state.counter.value);
+
+  // function returned by useDispatch hook is same as store.dispatch
   const dispatch = useDispatch();
 
-  const addValue = () => {
+  const addValue = mode => {
     const value = Number(incrementValue);
 
-    isNaN(value) ? alert('Please enter a number') : dispatch(incrementByValue(value));
+    if (isNaN(value)) {
+      return alert('Please enter a number');
+    }
 
-    setIncrementValue('');
+    mode === 'async' ? dispatch(incrementValueAsync(value)) : dispatch(incrementByValue(value));
   };
 
-  const subtractValue = () => {
+  const subtractValue = mode => {
     const value = Number(decrementValue);
 
-    isNaN(value) ? alert('Please enter a number') : dispatch(decrementByValue(value));
+    if (isNaN(value)) {
+      return alert('Please enter a number');
+    }
 
-    setDecrementValue('');
+    mode === 'async' ? dispatch(decrementValueAsync(value)) : dispatch(decrementByValue(value));
   };
 
   return (
@@ -62,8 +71,7 @@ const App = () => {
         <div className='space-x-3'>
           <input
             className='w-72 border border-gray-500 px-3 py-2 rounded focus:outline-none placeholder:text-gray-500'
-            type='text'
-            name='valueToAdd'
+            mode='text'
             placeholder='Enter a value to add'
             value={incrementValue}
             onChange={e => setIncrementValue(e.target.value)}
@@ -71,18 +79,25 @@ const App = () => {
 
           <button
             className='w-24 border border-gray-500 py-2 rounded'
-            onClick={addValue}
             disabled={incrementValue.trim() === ''}
+            onClick={addValue}
           >
             Add
+          </button>
+
+          <button
+            className='w-36 border border-gray-500 py-2 rounded'
+            disabled={incrementValue.trim() === ''}
+            onClick={() => addValue('async')}
+          >
+            Add Async
           </button>
         </div>
 
         <div className='space-x-3'>
           <input
             className='w-72 border border-gray-500 px-3 py-2 rounded focus:outline-none placeholder:text-gray-500'
-            type='text'
-            name='valueToSubtract'
+            mode='text'
             placeholder='Enter a value to subtract'
             value={decrementValue}
             onChange={e => setDecrementValue(e.target.value)}
@@ -90,10 +105,18 @@ const App = () => {
 
           <button
             className='w-24 border border-gray-500 py-2 rounded'
-            onClick={subtractValue}
             disabled={decrementValue.trim() === ''}
+            onClick={subtractValue}
           >
             Subtract
+          </button>
+
+          <button
+            className='w-36 border border-gray-500 py-2 rounded'
+            disabled={decrementValue.trim() === ''}
+            onClick={() => subtractValue('async')}
+          >
+            Subtract Async
           </button>
         </div>
       </div>

@@ -2,27 +2,47 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const counterSlice = createSlice({
   name: 'counter',
-  initialState: { count: 0 },
+  initialState: {
+    value: 0,
+  },
   reducers: {
     increment(state) {
-      state.count = state.count + 1;
+      state.value = state.value + 1;
     },
     decrement(state) {
-      state.count = state.count - 1;
+      state.value = state.value - 1;
     },
     reset(state) {
-      state.count = 0;
+      state.value = 0;
     },
     incrementByValue(state, action) {
-      state.count = state.count + action.payload;
+      state.value = state.value + action.payload;
     },
     decrementByValue(state, action) {
-      state.count = state.count - action.payload;
+      state.value = state.value - action.payload;
     },
   },
 });
 
+// These are all action creators which have the same name as reducers
+// Action creator returns an action object
+
 export const { increment, decrement, reset, incrementByValue, decrementByValue } =
   counterSlice.actions;
+
+// Thunk creator returns thunk function which handles asynchronous logic
+// Async logic can't be put inside reducers
+
+export const incrementValueAsync = value => dispatch => {
+  setTimeout(() => {
+    dispatch(incrementByValue(value));
+  }, 1000);
+};
+
+export const decrementValueAsync = value => dispatch => {
+  setTimeout(() => {
+    dispatch(decrementByValue(value));
+  }, 1000);
+};
 
 export default counterSlice.reducer;
