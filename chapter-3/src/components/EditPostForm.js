@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { editPost, getSinglePost } from '../app/slices/postsSlice';
+import { getAllUsers } from '../app/slices/usersSlice';
 
 const EditPostForm = () => {
   const { postId } = useParams();
@@ -9,7 +10,7 @@ const EditPostForm = () => {
 
   // const post = useSelector(state => state.posts.find(post => post.id === postId));
   const post = useSelector(state => getSinglePost(state, postId));
-  const users = useSelector(state => state.users);
+  const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
 
   const [postTitle, setPostTitle] = useState(post?.title);
@@ -26,7 +27,7 @@ const EditPostForm = () => {
 
   const onSavePostClicked = () => {
     dispatch(editPost({ postTitle, postContent, postAuthor, postId }));
-    navigate(`/posts/${postId}`);
+    navigate('..', { relative: 'path' });
   };
 
   return (

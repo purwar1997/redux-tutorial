@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addPost } from '../app/slices/postsSlice';
+import { getAllUsers } from '../app/slices/usersSlice';
 
 const AddPostForm = () => {
   const [postTitle, setPostTitle] = useState('');
   const [postContent, setPostContent] = useState('');
   const [postAuthor, setPostAuthor] = useState('');
 
-  const users = useSelector(store => store.users);
+  const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
