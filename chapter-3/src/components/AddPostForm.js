@@ -1,42 +1,31 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNewPost } from '../app/slices/postsSlice';
+import { addPost } from '../app/slices/postsSlice';
 
 const AddPostForm = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [userId, setUserId] = useState(null);
-  const [requestStatus, setRequestStatus] = useState('idle');
+  const [postTitle, setPostTitle] = useState('');
+  const [postContent, setPostContent] = useState('');
+  const [postAuthor, setPostAuthor] = useState('');
 
   const users = useSelector(store => store.users);
   const dispatch = useDispatch();
 
-  const canSave = [title, content, userId].every(Boolean) && requestStatus === 'idle';
+  const canSave = [postTitle, postContent, postAuthor].every(Boolean);
 
-  const savePost = async () => {
-    try {
-      // unwrap() returns a promise after an async operation has succeeded or failed
-      setRequestStatus('pending');
-
-      await dispatch(addNewPost({ title, body: content, userId })).unwrap();
-
-      setTitle('');
-      setContent('');
-      setUserId(null);
-    } catch (error) {
-      console.log('Failure adding post', error);
-    } finally {
-      setRequestStatus('idle');
-    }
+  const onSavePostClicked = () => {
+    dispatch(addPost(postTitle, postContent, postAuthor));
+    setPostTitle('');
+    setPostContent('');
+    setPostAuthor('');
   };
 
   return (
     <section>
-      <h2 className='text-2xl'>Add post</h2>
+      <h2 className='text-2xl'>Add new post</h2>
 
-      <form className='mt-6 space-y-4'>
-        <div className='flex gap-6'>
-          <label className='w-24' htmlFor='postTitle'>
+      <form className='mt-8 space-y-4'>
+        <div className='flex gap-4'>
+          <label className='w-28' htmlFor='postTitle'>
             Post title
           </label>
 
@@ -44,36 +33,36 @@ const AddPostForm = () => {
             className='flex-1 border border-gray-500 px-4 py-2.5 rounded focus:outline-none'
             type='text'
             id='postTitle'
-            value={title}
-            onChange={e => setTitle(e.target.value)}
+            value={postTitle}
+            onChange={e => setPostTitle(e.target.value)}
           />
         </div>
 
-        <div className='flex gap-6'>
-          <label className='w-24' htmlFor='postContent'>
+        <div className='flex gap-4'>
+          <label className='w-28' htmlFor='postContent'>
             Post content
           </label>
 
           <textarea
-            className='flex-1 border border-gray-500 h-40 px-4 py-2.5 rounded focus:outline-none'
+            className='flex-1 border border-gray-500 h-40 resize-none px-4 py-2.5 rounded focus:outline-none'
             id='postContent'
-            value={content}
-            onChange={e => setContent(e.target.value)}
+            value={postContent}
+            onChange={e => setPostContent(e.target.value)}
           />
         </div>
 
-        <div className='flex gap-6'>
-          <label className='w-24' htmlFor='postAuthor'>
+        <div className='flex gap-4'>
+          <label className='w-28' htmlFor='postAuthor'>
             Post author
           </label>
 
           <select
-            className='flex-1 border border-gray-500 px-3 py-2 rounded focus:outline-none cursor-pointer'
+            className='flex-1 border border-gray-500 px-3 py-2 rounded focus:outline-none'
             id='postAuthor'
-            onChange={e => setUserId(e.target.value)}
+            onChange={e => setPostAuthor(e.target.value)}
           >
-            <option value='' selected={userId === null} disabled hidden>
-              -- Choose an option --
+            <option disabled hidden selected={postAuthor === ''}>
+              -- Please choose an option --
             </option>
 
             {users.map(user => (
@@ -85,9 +74,9 @@ const AddPostForm = () => {
         </div>
 
         <button
-          className='ml-[120px] border border-gray-500 px-5 py-1.5 rounded'
+          className='ml-32 border border-gray-500 px-5 py-1.5 rounded'
           type='button'
-          onClick={savePost}
+          onClick={onSavePostClicked}
           disabled={!canSave}
         >
           Save

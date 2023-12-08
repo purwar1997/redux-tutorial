@@ -5,7 +5,7 @@ const PostAuthor = ({ authorId }) => {
 
   const postAuthor = users.find(user => user.id === authorId);
 
-  return <span>- {postAuthor ? postAuthor.name : 'Unknown author'}</span>;
+  return <span>{postAuthor ? postAuthor.name : 'Unknown author'}</span>;
 };
 
 export default PostAuthor;

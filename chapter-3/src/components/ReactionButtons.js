@@ -12,13 +12,19 @@ const ReactionButtons = ({ post }) => {
     coffee: '☕',
   };
 
+  const onReactionButtonClicked = (event, reactionType) => {
+    event.preventDefault();
+
+    dispatch(addReaction({ postId: post.id, reactionType }));
+  };
+
   return (
-    <div className='mt-4 flex gap-5'>
+    <div className='flex gap-5'>
       {Object.entries(reactionEmojis).map(([emojiName, emojiSymbol]) => (
         <button
+          className='flex gap-2'
           key={emojiName}
-          className='flex gap-1.5'
-          onClick={() => dispatch(addReaction({ postId: post.id, reaction: emojiName }))}
+          onClick={event => onReactionButtonClicked(event, emojiName)}
         >
           <span>{emojiSymbol}</span>
           <span>{post.reactions[emojiName]}</span>
