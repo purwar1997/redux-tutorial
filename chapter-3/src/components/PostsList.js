@@ -7,7 +7,6 @@ import TimeAgo from './TimeAgo';
 import ReactionButtons from './ReactionButtons';
 
 const PostsList = () => {
-  // const posts = useSelector(state => state.posts);
   const posts = useSelector(getAllPosts);
 
   const postsOrderedByDate = posts

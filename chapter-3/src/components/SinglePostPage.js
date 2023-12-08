@@ -9,7 +9,6 @@ const SinglePostPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  // const post = useSelector(state => state.posts.find(post => post.id === postId));
   const post = useSelector(state => getSinglePost(state, postId));
   const dispatch = useDispatch();
 
