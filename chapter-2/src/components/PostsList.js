@@ -21,7 +21,7 @@ const PostsList = () => {
             <h3 className='text-xl'>{post.title}</h3>
             <p>{post.content}</p>
             <p>
-              <PostAuthor authorId={post.userId} />, <TimeAgo timestamp={post.date} />
+              - <PostAuthor authorId={post.userId} />, <TimeAgo timestamp={post.date} />
             </p>
             <ReactionButtons post={post} />
           </article>
