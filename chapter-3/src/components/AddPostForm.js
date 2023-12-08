@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addPost } from '../app/slices/postsSlice';
 
@@ -9,14 +10,13 @@ const AddPostForm = () => {
 
   const users = useSelector(store => store.users);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const canSave = [postTitle, postContent, postAuthor].every(Boolean);
 
   const onSavePostClicked = () => {
     dispatch(addPost(postTitle, postContent, postAuthor));
-    setPostTitle('');
-    setPostContent('');
-    setPostAuthor('');
+    navigate('/');
   };
 
   return (
@@ -44,7 +44,7 @@ const AddPostForm = () => {
           </label>
 
           <textarea
-            className='flex-1 border border-gray-500 h-40 resize-none px-4 py-2.5 rounded focus:outline-none'
+            className='flex-1 border border-gray-500 h-36 resize-none px-4 py-2.5 rounded focus:outline-none'
             id='postContent'
             value={postContent}
             onChange={e => setPostContent(e.target.value)}

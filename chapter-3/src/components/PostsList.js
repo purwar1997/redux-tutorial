@@ -13,7 +13,7 @@ const PostsList = () => {
     .sort((postOne, postTwo) => compareDesc(parseISO(postOne.date), parseISO(postTwo.date)));
 
   return (
-    <section className=''>
+    <section>
       <h2 className='text-2xl'>{posts.length > 0 ? 'All posts' : 'No post found'}</h2>
 
       <div className='mt-6 space-y-3'>

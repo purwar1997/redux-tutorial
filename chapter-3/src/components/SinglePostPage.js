@@ -9,10 +9,8 @@ const SinglePostPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const posts = useSelector(state => state.posts);
+  const post = useSelector(state => state.posts.find(post => post.id === postId));
   const dispatch = useDispatch();
-
-  const post = posts.find(post => post.id === postId);
 
   if (!post) {
     return <h2 className='text-2xl'>Post not found!</h2>;
@@ -39,7 +37,13 @@ const SinglePostPage = () => {
       </article>
 
       <div className='mt-4 flex gap-3'>
-        <button className='border border-gray-500 px-5 py-1.5 rounded'>Edit</button>
+        <button
+          className='border border-gray-500 px-5 py-1.5 rounded'
+          onClick={() => navigate('edit')}
+        >
+          Edit
+        </button>
+
         <button
           className='border border-gray-500 px-5 py-1.5 rounded'
           onClick={onDeletePostClicked}

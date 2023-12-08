@@ -7,6 +7,7 @@ const initialState = [
     title: 'Javascript',
     content:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos ex sapiente doloremque consequatur architecto, laboriosam beatae non fugiat labore repudiandae, animi fugit sit saepe enim laborum numquam omnis temporibus veniam!',
+    userId: '3',
     date: sub(new Date(), { minutes: 10 }).toISOString(),
     reactions: {
       thumbsUp: 0,
@@ -22,6 +23,7 @@ const initialState = [
     content:
       'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem provident corporis deleniti deserunt, tempora accusantium. Neque dolores fuga impedit, voluptate soluta quia a. Ratione neque quasi nulla, inventore voluptate consequuntur?',
     date: sub(new Date(), { minutes: 5 }).toISOString(),
+    userId: '1',
     reactions: {
       thumbsUp: 0,
       wow: 0,
@@ -60,17 +62,29 @@ const postsSlice = createSlice({
       },
     },
 
-    editPost(state, action) {},
+    editPost(state, action) {
+      const { postTitle, postContent, postAuthor, postId } = action.payload;
+
+      const post = state.find(post => post.id === postId);
+      const postIndex = state.findIndex(post => post.id === postId);
+
+      if (post) {
+        post.title = postTitle;
+        post.content = postContent;
+        post.userId = postAuthor;
+        post.date = new Date().toISOString();
+
+        state.splice(postIndex, 1, post);
+      }
+    },
 
     deletePost(state, action) {
       const post = state.find(post => post.id === action.payload);
       const postIndex = state.findIndex(post => post.id === action.payload);
 
-      if (!post) {
-        return state;
+      if (post) {
+        state.splice(postIndex, 1);
       }
-
-      state.splice(postIndex, 1);
     },
 
     addReaction(state, action) {
@@ -79,12 +93,10 @@ const postsSlice = createSlice({
       const post = state.find(post => post.id === postId);
       const postIndex = state.findIndex(post => post.id === postId);
 
-      if (!post) {
-        return state;
+      if (post) {
+        post.reactions[reactionType]++;
+        state.splice(postIndex, 1, post);
       }
-
-      post.reactions[reactionType]++;
-      state.splice(postIndex, 1, post);
     },
   },
 });
