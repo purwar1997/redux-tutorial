@@ -60,6 +60,19 @@ const postsSlice = createSlice({
       },
     },
 
+    editPost(state, action) {},
+
+    deletePost(state, action) {
+      const post = state.find(post => post.id === action.payload);
+      const postIndex = state.findIndex(post => post.id === action.payload);
+
+      if (!post) {
+        return state;
+      }
+
+      state.splice(postIndex, 1);
+    },
+
     addReaction(state, action) {
       const { postId, reactionType } = action.payload;
 
@@ -76,6 +89,6 @@ const postsSlice = createSlice({
   },
 });
 
-export const { addPost, addReaction } = postsSlice.actions;
+export const { addPost, editPost, deletePost, addReaction } = postsSlice.actions;
 
 export default postsSlice.reducer;

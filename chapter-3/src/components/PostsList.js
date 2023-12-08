@@ -14,7 +14,7 @@ const PostsList = () => {
 
   return (
     <section className=''>
-      <h2 className='text-2xl'>All posts</h2>
+      <h2 className='text-2xl'>{posts.length > 0 ? 'All posts' : 'No post found'}</h2>
 
       <div className='mt-6 space-y-3'>
         {postsOrderedByDate.map(post => (
