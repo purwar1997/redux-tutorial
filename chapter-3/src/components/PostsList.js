@@ -1,12 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { compareDesc, parseISO } from 'date-fns';
+import { getAllPosts } from '../app/slices/postsSlice';
 import PostAuthor from './PostAuthor';
 import TimeAgo from './TimeAgo';
 import ReactionButtons from './ReactionButtons';
 
 const PostsList = () => {
-  const posts = useSelector(store => store.posts);
+  // const posts = useSelector(state => state.posts);
+  const posts = useSelector(getAllPosts);
 
   const postsOrderedByDate = posts
     .slice()
