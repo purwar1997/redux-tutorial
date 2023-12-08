@@ -21,7 +21,7 @@ const AddPostForm = () => {
 
   return (
     <section>
-      <h2 className='text-2xl'>Add post</h2>
+      <h2 className='text-2xl'>Add new post</h2>
 
       <form className='mt-8 space-y-4'>
         <div className='flex gap-4'>
