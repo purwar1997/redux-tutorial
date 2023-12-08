@@ -8,7 +8,7 @@ import ReactionButtons from './ReactionButtons';
 const PostsList = () => {
   const posts = useSelector(store => store.posts);
 
-  const orderedPosts = posts
+  const postsOrderedByDate = posts
     .slice()
     .sort((postOne, postTwo) => compareDesc(parseISO(postOne.date), parseISO(postTwo.date)));
 
@@ -17,7 +17,7 @@ const PostsList = () => {
       <h2 className='text-2xl'>All posts</h2>
 
       <div className='mt-6 space-y-3'>
-        {orderedPosts.map(post => (
+        {postsOrderedByDate.map(post => (
           <Link className='block' to={`posts/${post.id}`} key={post.id}>
             <article className='border border-gray-500 p-5 rounded-xl space-y-3'>
               <h3 className='text-xl'>{post.title}</h3>
