@@ -36,7 +36,14 @@ const initialState = [
 
 // Prepare callback can accept multiple arguments unlike reducers which can accept only two arguments - state and action
 // Prepare callback must return an object with a payload field
-// Random values like ids shouldn't be generated inside reducer functions
+// Random values like ids shouldn't be generated inside reducer function. We can generate them inside prepare callback.
+
+// Redux actions and state should only contain plain JS values like objects, arrays and primitives. Don't put class 
+// instances and functions into Redux. That's why ISO string has been assigned to date field rather than instance of 
+// Date class
+
+// When using Immer, you can either "mutate" an existing state object, or return a new state value yourself, but not 
+// both at the same time
 
 const postsSlice = createSlice({
   name: 'posts',
