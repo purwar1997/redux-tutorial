@@ -16,18 +16,18 @@ const EditPostForm = () => {
   const [postContent, setPostContent] = useState(post?.content);
   const [postAuthor, setPostAuthor] = useState(post?.userId);
 
+  const canSave = [postTitle, postContent, postAuthor].every(Boolean);
+
+  const onSavePostClicked = () => {
+    dispatch(editPost({ postTitle, postContent, postAuthor, postId }));
+    navigate(`/posts/${postId}`);
+  };
+
   // All hooks must be above any conditional return statement
 
   if (!post) {
     return <h2 className='text-2xl'>Post not found!</h2>;
   }
-
-  const canSave = [postTitle, postContent, postAuthor].every(Boolean);
-
-  const onSavePostClicked = () => {
-    dispatch(editPost({ postTitle, postContent, postAuthor, postId }));
-    navigate('..', { relative: 'path' });
-  };
 
   return (
     <section>
@@ -69,10 +69,11 @@ const EditPostForm = () => {
           <select
             className='flex-1 border border-gray-500 px-3 py-2 rounded focus:outline-none'
             id='postAuthor'
+            value={postAuthor}
             onChange={e => setPostAuthor(e.target.value)}
           >
             {users.map(user => (
-              <option key={user.id} value={user.id} selected={user.id === postAuthor}>
+              <option key={user.id} value={user.id}>
                 {user.name}
               </option>
             ))}

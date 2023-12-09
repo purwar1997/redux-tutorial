@@ -12,10 +12,6 @@ const SinglePostPage = () => {
   const post = useSelector(state => getSinglePost(state, postId));
   const dispatch = useDispatch();
 
-  if (!post) {
-    return <h2 className='text-2xl'>Post not found!</h2>;
-  }
-
   const onDeletePostClicked = () => {
     const confirmToDelete = window.confirm('Are you sure you want to delete this post?');
 
@@ -24,6 +20,10 @@ const SinglePostPage = () => {
       navigate('/', { replace: true });
     }
   };
+
+  if (!post) {
+    return <h2 className='text-2xl'>Post not found!</h2>;
+  }
 
   return (
     <section>

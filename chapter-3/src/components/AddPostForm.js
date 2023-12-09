@@ -60,9 +60,10 @@ const AddPostForm = () => {
           <select
             className='flex-1 border border-gray-500 px-3 py-2 rounded focus:outline-none'
             id='postAuthor'
+            value={postAuthor}
             onChange={e => setPostAuthor(e.target.value)}
           >
-            <option disabled hidden selected={postAuthor === ''}>
+            <option value='' disabled hidden>
               -- Please choose an option --
             </option>
 
