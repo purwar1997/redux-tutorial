@@ -34,6 +34,10 @@ const initialState = [
   },
 ];
 
+// Prepare callback can accept multiple arguments unlike reducers which can accept only two arguments - state and action
+// Prepare callback must return an object with a payload field
+// Random values like ids shouldn't be generated inside reducer functions
+
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
@@ -64,17 +68,13 @@ const postsSlice = createSlice({
 
     editPost(state, action) {
       const { postTitle, postContent, postAuthor, postId } = action.payload;
-
       const post = state.find(post => post.id === postId);
-      const postIndex = state.findIndex(post => post.id === postId);
 
       if (post) {
         post.title = postTitle;
         post.content = postContent;
         post.userId = postAuthor;
         post.date = new Date().toISOString();
-
-        state.splice(postIndex, 1, post);
       }
     },
 
@@ -83,19 +83,16 @@ const postsSlice = createSlice({
       const postIndex = state.findIndex(post => post.id === action.payload);
 
       if (post) {
-        state.splice(postIndex, 1);
+        state.splice(postIndex, 1)
       }
     },
 
     addReaction(state, action) {
       const { postId, reactionType } = action.payload;
-
       const post = state.find(post => post.id === postId);
-      const postIndex = state.findIndex(post => post.id === postId);
 
       if (post) {
         post.reactions[reactionType]++;
-        state.splice(postIndex, 1, post);
       }
     },
   },
