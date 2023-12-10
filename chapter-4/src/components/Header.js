@@ -1,13 +1,28 @@
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 const Header = () => {
   return (
-    <header className='px-24 py-7 flex justify-between items-center text-white bg-purple-800'>
-      <h1 className='text-3xl'>Redux Blogs</h1>
+    <header className='h-20 px-24 flex justify-between items-center bg-purple-600 text-white'>
+      <Link to='.'>
+        <h1 className='text-3xl font-medium'>Redux</h1>
+      </Link>
 
       <nav className='space-x-10'>
-        <Link to='/'>Home</Link>
-        <Link to='/post'>Post</Link>
+        <NavLink
+          className='underline-offset-4 hover:underline'
+          style={({ isActive }) => ({ textDecoration: isActive ? 'underline' : '' })}
+          to='.'
+        >
+          Posts
+        </NavLink>
+
+        <NavLink
+          className='underline-offset-4 hover:underline'
+          style={({ isActive }) => ({ textDecoration: isActive ? 'underline' : '' })}
+          to='posts/add'
+        >
+          Add Post
+        </NavLink>
       </nav>
     </header>
   );

@@ -1,98 +1,77 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { updatePost } from "../app/slices/postsSlice";
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { editPost, getSinglePost } from '../app/slices/postsSlice';
+import { getAllUsers } from '../app/slices/usersSlice';
 
 const EditPostForm = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(store => store.posts.posts.find(post => post.id === Number(postId)));
-  const users = useSelector(store => store.users);
+  const post = useSelector(state => getSinglePost(state, postId));
+  const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
 
-  const [title, setTitle] = useState(post?.title);
-  const [content, setContent] = useState(post?.body);
-  const [userId, setUserId] = useState(post?.userId);
-  const [requestStatus, setRequestStatus] = useState("idle");
+  const [postTitle, setPostTitle] = useState(post?.title);
+  const [postContent, setPostContent] = useState(post?.content);
+  const [postAuthor, setPostAuthor] = useState(post?.userId);
 
-  const canSave = [title, content, userId].every(Boolean) && requestStatus === "idle";
+  const canSave = [postTitle, postContent, postAuthor].every(Boolean);
+
+  const onSavePostClicked = () => {
+    dispatch(editPost({ postTitle, postContent, postAuthor, postId }));
+    navigate(`/posts/${postId}`);
+  };
+
+  // All hooks must be above any conditional return statement
 
   if (!post) {
-    return (
-      <section>
-        <h2>Post not found</h2>
-      </section>
-    );
+    return <h2 className='text-2xl'>Post not found!</h2>;
   }
-
-  const onSavePostClicked = async () => {
-    try {
-      setRequestStatus("pending");
-
-      await dispatch(
-        updatePost({ id: Number(postId), title, body: content, userId: Number(userId) })
-      ).unwrap();
-
-      setTitle("");
-      setContent("");
-      setUserId("");
-
-      navigate(`/post/${postId}`, { replace: true });
-    } catch (error) {
-      console.log("Failure updating post", error);
-    } finally {
-      setRequestStatus("idle");
-    }
-  };
 
   return (
     <section>
       <h2 className='text-2xl'>Edit post</h2>
 
       <form className='mt-8 space-y-4'>
-        <div className='flex gap-3'>
+        <div className='flex gap-4'>
           <label className='w-28' htmlFor='postTitle'>
             Post title
           </label>
 
           <input
-            className='border border-gray-500 px-4 py-2.5 rounded flex-1 focus:outline-none'
+            className='flex-1 border border-gray-500 px-4 py-2.5 rounded focus:outline-none'
             type='text'
             id='postTitle'
-            value={title}
-            onChange={e => setTitle(e.target.value)}
+            value={postTitle}
+            onChange={e => setPostTitle(e.target.value)}
           />
         </div>
 
-        <div className='flex gap-3'>
+        <div className='flex gap-4'>
           <label className='w-28' htmlFor='postContent'>
             Post content
           </label>
 
           <textarea
-            className='border border-gray-500 px-4 py-2.5 rounded flex-1 h-32 focus:outline-none'
+            className='flex-1 border border-gray-500 h-36 resize-none px-4 py-2.5 rounded focus:outline-none'
             id='postContent'
-            value={content}
-            onChange={e => setContent(e.target.value)}
+            value={postContent}
+            onChange={e => setPostContent(e.target.value)}
           />
         </div>
 
-        <div className='flex gap-3'>
+        <div className='flex gap-4'>
           <label className='w-28' htmlFor='postAuthor'>
             Post author
           </label>
 
           <select
-            className='border border-gray-500 px-3 py-2.5 rounded flex-1 focus:outline-none'
+            className='flex-1 border border-gray-500 px-3 py-2 rounded focus:outline-none'
             id='postAuthor'
-            defaultValue={userId || ""}
-            onChange={e => setUserId(e.target.value)}
+            value={postAuthor}
+            onChange={e => setPostAuthor(e.target.value)}
           >
-            <option value='' disabled hidden>
-              -- Select an option --
-            </option>
-
             {users.map(user => (
               <option key={user.id} value={user.id}>
                 {user.name}
@@ -101,24 +80,14 @@ const EditPostForm = () => {
           </select>
         </div>
 
-        <div className='ml-[125px] flex gap-3'>
-          <button
-            className='w-20 border border-gray-500 rounded py-1.5'
-            type='button'
-            disabled={!canSave}
-            onClick={onSavePostClicked}
-          >
-            Save
-          </button>
-
-          <button
-            className='w-20 border border-gray-500 rounded py-1.5'
-            type='button'
-            onClick={() => navigate(-1)}
-          >
-            Cancel
-          </button>
-        </div>
+        <button
+          className='ml-32 border border-gray-500 px-5 py-1.5 rounded'
+          type='button'
+          onClick={onSavePostClicked}
+          disabled={!canSave}
+        >
+          Save
+        </button>
       </form>
     </section>
   );

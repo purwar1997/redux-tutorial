@@ -5,7 +5,7 @@ const Layout = () => {
   return (
     <>
       <Header />
-      <main className='px-24 py-12'>
+      <main className='px-32 py-10'>
         <Outlet />
       </main>
     </>

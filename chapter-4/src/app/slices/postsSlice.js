@@ -1,51 +1,62 @@
-import { createSlice, nanoid, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, nanoid } from '@reduxjs/toolkit';
 import { sub } from 'date-fns';
-import axios from 'axios';
 
-const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
+const initialState = [
+  {
+    id: '1',
+    title: 'Javascript',
+    content:
+      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos ex sapiente doloremque consequatur architecto, laboriosam beatae non fugiat labore repudiandae, animi fugit sit saepe enim laborum numquam omnis temporibus veniam!',
+    userId: '3',
+    date: sub(new Date(), { minutes: 10 }).toISOString(),
+    reactions: {
+      thumbsUp: 0,
+      wow: 0,
+      heart: 0,
+      rocket: 0,
+      coffee: 0,
+    },
+  },
+  {
+    id: '2',
+    title: 'Typescript for react',
+    content:
+      'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem provident corporis deleniti deserunt, tempora accusantium. Neque dolores fuga impedit, voluptate soluta quia a. Ratione neque quasi nulla, inventore voluptate consequuntur?',
+    date: sub(new Date(), { minutes: 5 }).toISOString(),
+    userId: '1',
+    reactions: {
+      thumbsUp: 0,
+      wow: 0,
+      heart: 0,
+      rocket: 0,
+      coffee: 0,
+    },
+  },
+];
 
-export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-  const response = await axios.get(POSTS_URL);
-  return response.data;
-});
+// Prepare callback can accept multiple arguments unlike reducers which can accept only two arguments - state and action
+// Prepare callback must return an object with a payload field
+// Random values like ids shouldn't be generated inside reducer function. We can generate them inside prepare callback.
 
-export const addNewPost = createAsyncThunk('posts/addNewPost', async post => {
-  const response = await axios.post(POSTS_URL, post);
-  return response.data;
-});
+// Redux actions and state should only contain plain JS values like objects, arrays and primitives. Don't put class
+// instances and functions into Redux. That's why ISO string has been assigned to date field rather than instance of
+// Date class
 
-export const updatePost = createAsyncThunk('posts/updatePost', async post => {
-  try {
-    const response = await axios.put(`${POSTS_URL}/${post.id}`, post);
-    return response.data;
-  } catch (error) {
-    return post;
-  }
-});
-
-export const deletePost = createAsyncThunk('posts/deletePost', async postId => {
-  await axios.delete(`${POSTS_URL}/${postId}`);
-  return postId;
-});
-
-const initialState = {
-  posts: [],
-  status: 'idle',
-  error: null,
-};
+// When using Immer, you can either mutate an existing state object, or return a new state value yourself, but not
+// both at the same time
 
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
     addPost: {
-      prepare(title, content, userId) {
+      prepare(title, content, author) {
         return {
           payload: {
             id: nanoid(),
             title,
-            body: content,
-            userId,
+            content,
+            userId: author,
             date: new Date().toISOString(),
             reactions: {
               thumbsUp: 0,
@@ -58,92 +69,45 @@ const postsSlice = createSlice({
         };
       },
       reducer(state, action) {
-        state.posts.push(action.payload);
+        state.push(action.payload);
       },
     },
 
-    addReaction(state, action) {
-      const { postId, reaction } = action.payload;
-
-      const post = state.posts.find(post => post.id === postId);
+    editPost(state, action) {
+      const { postTitle, postContent, postAuthor, postId } = action.payload;
+      const post = state.find(post => post.id === postId);
 
       if (post) {
-        post.reactions[reaction]++;
+        post.title = postTitle;
+        post.content = postContent;
+        post.userId = postAuthor;
+        post.date = new Date().toISOString();
+      }
+    },
+
+    deletePost(state, action) {
+      const post = state.find(post => post.id === action.payload);
+      const postIndex = state.findIndex(post => post.id === action.payload);
+
+      if (post) {
+        state.splice(postIndex, 1);
+      }
+    },
+
+    addReaction(state, action) {
+      const { postId, reactionType } = action.payload;
+      const post = state.find(post => post.id === postId);
+
+      if (post) {
+        post.reactions[reactionType]++;
       }
     },
   },
-  extraReducers(builder) {
-    builder
-      .addCase(fetchPosts.pending, (state, action) => {
-        state.status = 'loading';
-      })
-      .addCase(fetchPosts.fulfilled, (state, action) => {
-        let minute = 1;
-
-        const loadedPosts = action.payload.map(post => {
-          post.date = sub(new Date(), { minutes: minute++ }).toISOString();
-          post.reactions = {
-            thumbsUp: 0,
-            wow: 0,
-            heart: 0,
-            rocket: 0,
-            coffee: 0,
-          };
-
-          return post;
-        });
-
-        state.status = 'succeeded';
-        state.posts = state.posts.concat(loadedPosts);
-      })
-      .addCase(fetchPosts.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message;
-      })
-      .addCase(addNewPost.fulfilled, (state, action) => {
-        const post = action.payload;
-
-        post.date = new Date().toISOString();
-        post.userId = Number(post.userId);
-        post.reactions = {
-          thumbsUp: 0,
-          wow: 0,
-          heart: 0,
-          rocket: 0,
-          coffee: 0,
-        };
-
-        state.posts.push(post);
-      })
-      .addCase(updatePost.fulfilled, (state, action) => {
-        const { id, title, body, userId } = action.payload;
-
-        const post = state.posts.find(post => post.id === id);
-
-        if (!post) {
-          throw new Error('Post not found');
-        }
-
-        post.title = title;
-        post.body = body;
-        post.userId = userId;
-        post.date = new Date().toISOString();
-
-        const posts = state.posts.filter(post => post.id !== id);
-        state.posts = [...posts, post];
-      })
-      .addCase(deletePost.fulfilled, (state, action) => {
-        const post = state.posts.find(post => post.id === action.payload);
-
-        if (!post) {
-          throw new Error('Post not found');
-        }
-
-        state.posts = state.posts.filter(post => post.id !== action.payload);
-      });
-  },
 });
 
-export const { addPost, addReaction } = postsSlice.actions;
+export const { addPost, editPost, deletePost, addReaction } = postsSlice.actions;
+
+export const getAllPosts = state => state.posts;
+export const getSinglePost = (state, postId) => state.posts.find(post => post.id === postId);
 
 export default postsSlice.reducer;

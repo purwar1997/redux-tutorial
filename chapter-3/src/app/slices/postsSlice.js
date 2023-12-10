@@ -42,7 +42,7 @@ const initialState = [
 // instances and functions into Redux. That's why ISO string has been assigned to date field rather than instance of 
 // Date class
 
-// When using Immer, you can either "mutate" an existing state object, or return a new state value yourself, but not 
+// When using Immer, you can either mutate an existing state object, or return a new state value yourself, but not 
 // both at the same time
 
 const postsSlice = createSlice({
