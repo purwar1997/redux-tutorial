@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { deletePost, getSinglePost } from '../app/slices/postsSlice';
@@ -6,18 +7,27 @@ import TimeAgo from './TimeAgo';
 import ReactionButtons from './ReactionButtons';
 
 const SinglePostPage = () => {
+  const [requestStatus, setRequestStatus] = useState('idle');
+
   const { postId } = useParams();
   const navigate = useNavigate();
 
   const post = useSelector(state => getSinglePost(state, Number(postId)));
   const dispatch = useDispatch();
 
-  const onDeletePostClicked = () => {
+  const onDeletePostClicked = async () => {
     const confirmToDelete = window.confirm('Are you sure you want to delete this post?');
 
     if (confirmToDelete) {
-      dispatch(deletePost(Number(postId)));
-      navigate('/', { replace: true });
+      try {
+        setRequestStatus('pending');
+        await dispatch(deletePost(Number(postId))).unwrap();
+        navigate('/', { replace: true });
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setRequestStatus('idle');
+      }
     }
   };
 
@@ -47,6 +57,7 @@ const SinglePostPage = () => {
         <button
           className='border border-gray-500 px-5 py-1.5 rounded'
           onClick={onDeletePostClicked}
+          disabled={requestStatus === 'pending'}
         >
           Delete
         </button>

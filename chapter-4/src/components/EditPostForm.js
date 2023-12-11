@@ -15,20 +15,29 @@ const EditPostForm = () => {
   const [postTitle, setPostTitle] = useState(post?.title);
   const [postContent, setPostContent] = useState(post?.body);
   const [postAuthor, setPostAuthor] = useState(post?.userId);
+  const [requestStatus, setRequestStatus] = useState('idle');
 
-  const canSave = [postTitle, postContent, postAuthor].every(Boolean);
+  const canSave = [postTitle, postContent, postAuthor].every(Boolean) && requestStatus === 'idle';
 
-  const onSavePostClicked = () => {
-    dispatch(
-      editPost({
-        id: Number(postId),
-        title: postTitle,
-        body: postContent,
-        userId: Number(postAuthor),
-      })
-    );
+  const onSavePostClicked = async () => {
+    try {
+      setRequestStatus('pending');
 
-    navigate(`/posts/${postId}`);
+      await dispatch(
+        editPost({
+          id: Number(postId),
+          title: postTitle,
+          body: postContent,
+          userId: Number(postAuthor),
+        })
+      ).unwrap();
+
+      navigate(`/posts/${postId}`);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setRequestStatus('idle');
+    }
   };
 
   // All hooks must be above any conditional return statement
@@ -94,7 +103,7 @@ const EditPostForm = () => {
           onClick={onSavePostClicked}
           disabled={!canSave}
         >
-          Save
+          {requestStatus === 'pending' ? 'Saving...' : 'Save'}
         </button>
       </form>
     </section>

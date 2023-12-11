@@ -8,16 +8,28 @@ const AddPostForm = () => {
   const [postTitle, setPostTitle] = useState('');
   const [postContent, setPostContent] = useState('');
   const [postAuthor, setPostAuthor] = useState('');
+  const [requestStatus, setRequestStatus] = useState('idle');
 
   const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const canSave = [postTitle, postContent, postAuthor].every(Boolean);
+  const canSave = [postTitle, postContent, postAuthor].every(Boolean) && requestStatus === 'idle';
 
-  const onSavePostClicked = () => {
-    dispatch(addNewPost({ title: postTitle, body: postContent, userId: Number(postAuthor) }));
-    navigate('/');
+  const onSavePostClicked = async () => {
+    try {
+      setRequestStatus('pending');
+
+      await dispatch(
+        addNewPost({ title: postTitle, body: postContent, userId: Number(postAuthor) })
+      ).unwarp();
+
+      navigate('/');
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setRequestStatus('idle');
+    }
   };
 
   return (
@@ -81,7 +93,7 @@ const AddPostForm = () => {
           onClick={onSavePostClicked}
           disabled={!canSave}
         >
-          Save
+          {requestStatus === 'pending' ? 'Saving...' : 'Save'}
         </button>
       </form>
     </section>
