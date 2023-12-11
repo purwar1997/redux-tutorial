@@ -1,18 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-const initialState = [
-  { id: '1', name: 'Kailash Nadh' },
-  { id: '2', name: 'Amod Malviya' },
-  { id: '3', name: 'Subhash Choudhary' },
-  { id: '4', name: 'Rahul Chari' },
-  { id: '5', name: 'Harishankaran Karunanidhi' },
-];
+const USERS_URL = 'https://jsonplaceholder.typicode.com/users';
+
+const initialState = [];
+
+export const fetchUsers = () => async dispatch => {
+  try {
+    const response = await axios.get(USERS_URL);
+    dispatch(fetchUsersSucceded(response.data));
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 const usersSlice = createSlice({
   name: 'users',
   initialState,
-  reducers: {},
+  reducers: {
+    fetchUsersSucceded(state, action) {
+      state.push(...action.payload);
+    },
+  },
 });
+
+export const { fetchUsersSucceded } = usersSlice.actions;
 
 export const getAllUsers = state => state.users;
 export const getSingleUser = (state, userId) => state.users.find(user => user.id === userId);
