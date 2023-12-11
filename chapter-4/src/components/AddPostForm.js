@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { addPost } from '../app/slices/postsSlice';
+import { addNewPost } from '../app/slices/postsSlice';
 import { getAllUsers } from '../app/slices/usersSlice';
 
 const AddPostForm = () => {
@@ -16,7 +16,7 @@ const AddPostForm = () => {
   const canSave = [postTitle, postContent, postAuthor].every(Boolean);
 
   const onSavePostClicked = () => {
-    dispatch(addPost(postTitle, postContent, postAuthor));
+    dispatch(addNewPost({ title: postTitle, body: postContent, userId: Number(postAuthor) }));
     navigate('/');
   };
 

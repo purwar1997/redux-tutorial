@@ -9,7 +9,7 @@ const SinglePostPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(state => getSinglePost(state, postId));
+  const post = useSelector(state => getSinglePost(state, Number(postId) || postId));
   const dispatch = useDispatch();
 
   const onDeletePostClicked = () => {
@@ -29,7 +29,7 @@ const SinglePostPage = () => {
     <section>
       <article className='border border-gray-500 p-5 rounded-xl space-y-3'>
         <h3 className='text-xl'>{post.title}</h3>
-        <p>{post.content}</p>
+        <p>{post.body}</p>
         <p>
           - <PostAuthor authorId={post.userId} />, <TimeAgo timestamp={post.date} />
         </p>

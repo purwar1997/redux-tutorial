@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, nanoid } from '@reduxjs/toolkit';
 import { sub } from 'date-fns';
 import axios from 'axios';
 
@@ -17,9 +17,9 @@ export const fetchPosts = () => async dispatch => {
     const response = await axios.get(POSTS_URL);
     let minute = 1;
 
-    const posts = response.data.map(post => {
-      post.date = sub(new Date(), { minutes: minute++ }).toISOString();
-      post.reactions = {
+    const posts = response.data.map(newPost => {
+      newPost.date = sub(new Date(), { minutes: minute++ }).toISOString();
+      newPost.reactions = {
         thumbsUp: 0,
         wow: 0,
         heart: 0,
@@ -27,13 +27,30 @@ export const fetchPosts = () => async dispatch => {
         coffee: 0,
       };
 
-      return post;
+      return newPost;
     });
 
     dispatch(fetchPostsSucceded(posts));
   } catch (error) {
     dispatch(fetchPostsFailed(error.message));
   }
+};
+
+export const addNewPost = newPost => async dispatch => {
+  const response = await axios.post(POSTS_URL, newPost);
+  const post = response.data;
+
+  post.id = nanoid();
+  post.date = new Date().toISOString();
+  post.reactions = {
+    thumbsUp: 0,
+    wow: 0,
+    heart: 0,
+    rocket: 0,
+    coffee: 0,
+  };
+
+  dispatch(addPost(post));
 };
 
 // Redux actions and state should only contain plain JS values like objects, arrays and primitives. Don't put class
@@ -47,60 +64,6 @@ const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    // addPost: {
-    //   prepare(title, content, author) {
-    //     return {
-    //       payload: {
-    //         id: nanoid(),
-    //         title,
-    //         content,
-    //         userId: author,
-    //         date: new Date().toISOString(),
-    //         reactions: {
-    //           thumbsUp: 0,
-    //           wow: 0,
-    //           heart: 0,
-    //           rocket: 0,
-    //           coffee: 0,
-    //         },
-    //       },
-    //     };
-    //   },
-    //   reducer(state, action) {
-    //     state.posts.push(action.payload);
-    //   },
-    // },
-
-    // editPost(state, action) {
-    //   const { postTitle, postContent, postAuthor, postId } = action.payload;
-    //   const post = state.posts.find(post => post.id === postId);
-
-    //   if (post) {
-    //     post.title = postTitle;
-    //     post.content = postContent;
-    //     post.userId = postAuthor;
-    //     post.date = new Date().toISOString();
-    //   }
-    // },
-
-    // deletePost(state, action) {
-    //   const post = state.posts.find(post => post.id === action.payload);
-    //   const postIndex = state.posts.findIndex(post => post.id === action.payload);
-
-    //   if (post) {
-    //     state.splice(postIndex, 1);
-    //   }
-    // },
-
-    addReaction(state, action) {
-      const { postId, reactionType } = action.payload;
-      const post = state.posts.find(post => post.id === postId);
-
-      if (post) {
-        post.reactions[reactionType]++;
-      }
-    },
-
     fetchPostsStarted(state) {
       state.status = 'loading';
     },
@@ -113,6 +76,19 @@ const postsSlice = createSlice({
     fetchPostsFailed(state, action) {
       state.status = 'failed';
       state.error = action.payload;
+    },
+
+    addPost(state, action) {
+      state.posts.push(action.payload);
+    },
+
+    addReaction(state, action) {
+      const { postId, reactionType } = action.payload;
+      const newPost = state.posts.find(newPost => newPost.id === postId);
+
+      if (newPost) {
+        newPost.reactions[reactionType]++;
+      }
     },
   },
 });
