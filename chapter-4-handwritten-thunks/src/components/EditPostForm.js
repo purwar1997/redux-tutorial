@@ -1,18 +1,21 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { addNewPost } from '../app/slices/postsSlice';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { updatePost, getPostById } from '../app/slices/postsSlice';
 import { getAllUsers } from '../app/slices/usersSlice';
 
-const AddPostForm = () => {
-  const [postTitle, setPostTitle] = useState('');
-  const [postContent, setPostContent] = useState('');
-  const [postAuthor, setPostAuthor] = useState('');
-  const [requestStatus, setRequestStatus] = useState('idle');
+const EditPostForm = () => {
+  const { postId } = useParams();
+  const navigate = useNavigate();
 
+  const post = useSelector(state => getPostById(state, Number(postId)));
   const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+
+  const [postTitle, setPostTitle] = useState(post?.title);
+  const [postContent, setPostContent] = useState(post?.body);
+  const [postAuthor, setPostAuthor] = useState(post?.userId);
+  const [requestStatus, setRequestStatus] = useState('idle');
 
   const canSave = [postTitle, postContent, postAuthor].every(Boolean) && requestStatus === 'idle';
 
@@ -20,15 +23,16 @@ const AddPostForm = () => {
     try {
       setRequestStatus('pending');
 
-      // dispatch returns a promise
-      // unwrap can only be used if thunks are produced using createAsyncThunk
-      // unwrap returns the result of a fulfilled promise
-
       await dispatch(
-        addNewPost({ title: postTitle, body: postContent, userId: Number(postAuthor) })
-      ).unwrap();
+        updatePost({
+          id: Number(postId),
+          title: postTitle,
+          body: postContent,
+          userId: Number(postAuthor),
+        })
+      );
 
-      navigate('/');
+      navigate(`/posts/${postId}`);
     } catch (error) {
       console.log(error);
     } finally {
@@ -36,9 +40,15 @@ const AddPostForm = () => {
     }
   };
 
+  // All hooks must be above any conditional return statement
+
+  if (!post) {
+    return <h2 className='text-2xl'>Post not found!</h2>;
+  }
+
   return (
     <section>
-      <h2 className='text-2xl'>Add new post</h2>
+      <h2 className='text-2xl'>Edit post</h2>
 
       <form className='mt-8 space-y-4'>
         <div className='flex gap-4'>
@@ -79,10 +89,6 @@ const AddPostForm = () => {
             value={postAuthor}
             onChange={e => setPostAuthor(e.target.value)}
           >
-            <option value='' disabled hidden>
-              -- Please choose an option --
-            </option>
-
             {users.map(user => (
               <option key={user.id} value={user.id}>
                 {user.name}
@@ -104,4 +110,4 @@ const AddPostForm = () => {
   );
 };
 
-export default AddPostForm;
+export default EditPostForm;

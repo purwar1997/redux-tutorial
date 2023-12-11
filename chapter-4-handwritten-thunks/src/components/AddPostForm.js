@@ -26,7 +26,7 @@ const AddPostForm = () => {
 
       await dispatch(
         addNewPost({ title: postTitle, body: postContent, userId: Number(postAuthor) })
-      ).unwrap();
+      );
 
       navigate('/');
     } catch (error) {

@@ -23,14 +23,14 @@ const EditPostForm = () => {
     try {
       setRequestStatus('pending');
 
-      await dispatch(
-        updatePost({
-          id: Number(postId),
-          title: postTitle,
-          body: postContent,
-          userId: Number(postAuthor),
-        })
-      ).unwrap();
+     await dispatch(
+       updatePost({
+         id: Number(postId),
+         title: postTitle,
+         body: postContent,
+         userId: Number(postAuthor),
+       })
+     ).unwrap();
 
       navigate(`/posts/${postId}`);
     } catch (error) {
