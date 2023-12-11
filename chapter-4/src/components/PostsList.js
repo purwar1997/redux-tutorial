@@ -1,11 +1,8 @@
 import { useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { compareDesc, parseISO } from 'date-fns';
 import { getAllPosts, fetchPosts, getPostsStatus, getPostsError } from '../app/slices/postsSlice';
-import PostAuthor from './PostAuthor';
-import TimeAgo from './TimeAgo';
-import ReactionButtons from './ReactionButtons';
+import PostExcerpt from './PostExcerpt';
 import Spinner from './Spinner';
 
 const PostsList = () => {
@@ -35,16 +32,7 @@ const PostsList = () => {
 
         <div className='mt-6 space-y-3'>
           {postsOrderedByDate.map(post => (
-            <Link className='block' to={`posts/${post.id}`} key={post.id}>
-              <article className='border border-gray-500 p-5 rounded-xl space-y-3'>
-                <h3 className='text-xl'>{post.title}</h3>
-                <p>{post.body.substring(0, 100)}...</p>
-                <p>
-                  - <PostAuthor authorId={post.userId} />, <TimeAgo timestamp={post.date} />
-                </p>
-                <ReactionButtons post={post} />
-              </article>
-            </Link>
+            <PostExcerpt key={post.id} post={post} />
           ))}
         </div>
       </>

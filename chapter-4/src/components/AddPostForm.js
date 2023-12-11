@@ -22,7 +22,7 @@ const AddPostForm = () => {
 
       await dispatch(
         addNewPost({ title: postTitle, body: postContent, userId: Number(postAuthor) })
-      ).unwarp();
+      ).unwrap();
 
       navigate('/');
     } catch (error) {

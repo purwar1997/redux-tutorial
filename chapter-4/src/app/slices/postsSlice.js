@@ -14,7 +14,7 @@ const initialState = {
 // instances and functions into Redux. That's why ISO string has been assigned to date field rather than instance of
 // Date class.
 
-// Handwritten thunk creators
+// Handwritten thunk functions
 
 /*
 export const fetchPosts = () => async dispatch => {
@@ -109,8 +109,12 @@ export const addNewPost = createAsyncThunk('posts/addNewPost', async newPost => 
 });
 
 export const updatePost = createAsyncThunk('posts/editPost', async post => {
-  const response = await axios.put(POSTS_URL, post);
-  return response.data;
+  try {
+    const response = await axios.put(POSTS_URL, post);
+    return response.data;
+  } catch (error) {
+    return post;
+  }
 });
 
 export const deletePost = createAsyncThunk('posts/deletePost', async postId => {

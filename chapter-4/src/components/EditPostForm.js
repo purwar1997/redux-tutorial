@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { editPost, getSinglePost } from '../app/slices/postsSlice';
+import { updatePost, getSinglePost } from '../app/slices/postsSlice';
 import { getAllUsers } from '../app/slices/usersSlice';
 
 const EditPostForm = () => {
@@ -24,7 +24,7 @@ const EditPostForm = () => {
       setRequestStatus('pending');
 
       await dispatch(
-        editPost({
+        updatePost({
           id: Number(postId),
           title: postTitle,
           body: postContent,
