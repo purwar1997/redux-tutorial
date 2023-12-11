@@ -8,18 +8,26 @@ const EditPostForm = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(state => getSinglePost(state, postId));
+  const post = useSelector(state => getSinglePost(state, Number(postId)));
   const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
 
   const [postTitle, setPostTitle] = useState(post?.title);
-  const [postContent, setPostContent] = useState(post?.content);
+  const [postContent, setPostContent] = useState(post?.body);
   const [postAuthor, setPostAuthor] = useState(post?.userId);
 
   const canSave = [postTitle, postContent, postAuthor].every(Boolean);
 
   const onSavePostClicked = () => {
-    dispatch(editPost({ postTitle, postContent, postAuthor, postId }));
+    dispatch(
+      editPost({
+        id: Number(postId),
+        title: postTitle,
+        body: postContent,
+        userId: Number(postAuthor),
+      })
+    );
+
     navigate(`/posts/${postId}`);
   };
 

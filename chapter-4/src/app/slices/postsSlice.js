@@ -10,6 +10,10 @@ const initialState = {
   error: null,
 };
 
+// Redux actions and state should only contain plain JS values like objects, arrays and primitives. Don't put class
+// instances and functions into Redux. That's why ISO string has been assigned to date field rather than instance of
+// Date class.
+
 export const fetchPosts = () => async dispatch => {
   dispatch(fetchPostsStarted());
 
@@ -17,9 +21,9 @@ export const fetchPosts = () => async dispatch => {
     const response = await axios.get(POSTS_URL);
     let minute = 1;
 
-    const posts = response.data.map(newPost => {
-      newPost.date = sub(new Date(), { minutes: minute++ }).toISOString();
-      newPost.reactions = {
+    const posts = response.data.map(post => {
+      post.date = sub(new Date(), { minutes: minute++ }).toISOString();
+      post.reactions = {
         thumbsUp: 0,
         wow: 0,
         heart: 0,
@@ -27,7 +31,7 @@ export const fetchPosts = () => async dispatch => {
         coffee: 0,
       };
 
-      return newPost;
+      return post;
     });
 
     dispatch(fetchPostsSucceded(posts));
@@ -40,7 +44,6 @@ export const addNewPost = newPost => async dispatch => {
   const response = await axios.post(POSTS_URL, newPost);
   const post = response.data;
 
-  post.id = nanoid();
   post.date = new Date().toISOString();
   post.reactions = {
     thumbsUp: 0,
@@ -53,9 +56,15 @@ export const addNewPost = newPost => async dispatch => {
   dispatch(addPost(post));
 };
 
-// Redux actions and state should only contain plain JS values like objects, arrays and primitives. Don't put class
-// instances and functions into Redux. That's why ISO string has been assigned to date field rather than instance of
-// Date class
+export const updatePost = post => async dispatch => {
+  const response =await axios.put(POSTS_URL, post);
+  dispatch(editPost(response.data));
+};
+
+export const deletePost = postId => async dispatch => {
+  await axios.delete(`${POSTS_URL}/${postId}`);
+  dispatch(removePost(postId))
+}
 
 // When using Immer, you can either mutate an existing state object, or return a new state value yourself, but not
 // both at the same time
@@ -82,6 +91,26 @@ const postsSlice = createSlice({
       state.posts.push(action.payload);
     },
 
+    editPost(state, action) {
+      const {id, title, body, userId} = action.payload;
+      const post = state.posts.find(post => post.id === id);
+
+      if (post) {
+         post.title = title;
+         post.body = body;
+         post.userId = userId;
+         post.date = new Date().toISOString()
+      }
+    },
+
+    removePost(state, action){
+      const post = state.posts.find(post => post.id === action.payload);
+
+      if (post) {
+        state.posts = state.posts.filter(post => post.id !== action.payload)
+      }
+    },
+
     addReaction(state, action) {
       const { postId, reactionType } = action.payload;
       const newPost = state.posts.find(newPost => newPost.id === postId);
@@ -96,7 +125,7 @@ const postsSlice = createSlice({
 export const {
   addPost,
   editPost,
-  deletePost,
+  removePost,
   addReaction,
   fetchPostsStarted,
   fetchPostsSucceded,

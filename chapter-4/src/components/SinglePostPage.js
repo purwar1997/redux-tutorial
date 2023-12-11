@@ -9,14 +9,14 @@ const SinglePostPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(state => getSinglePost(state, Number(postId) || postId));
+  const post = useSelector(state => getSinglePost(state, Number(postId)));
   const dispatch = useDispatch();
 
   const onDeletePostClicked = () => {
     const confirmToDelete = window.confirm('Are you sure you want to delete this post?');
 
     if (confirmToDelete) {
-      dispatch(deletePost(postId));
+      dispatch(deletePost(Number(postId)));
       navigate('/', { replace: true });
     }
   };
