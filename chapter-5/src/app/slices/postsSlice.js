@@ -123,12 +123,10 @@ export const getAllPosts = state => state.posts.posts;
 export const getPostsStatus = state => state.posts.status;
 export const getPostsError = state => state.posts.error;
 export const getPostById = (state, postId) => state.posts.posts.find(post => post.id === postId);
-// export const getUserPosts = (state, userId) => {
-//   const allPosts = getAllPosts(state);
-//   return allPosts.filter(post => post.userId === userId);
-// };
 
-export const getUserPosts = (state, userId) =>
-  state.posts.posts.filter(post => post.userId === userId);
+export const getPostsByUser = (state, userId) => {
+  const allPosts = getAllPosts(state);
+  return allPosts.filter(post => post.userId === userId);
+};
 
 export default postsSlice.reducer;
