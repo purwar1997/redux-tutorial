@@ -1,12 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 const NotFoundPage = () => {
   return (
-    <section className='text-center'>
-      <h2 className='text-2xl'>Sorry, the page you were looking for was not found.</h2>
-
-      <Link className='inline-block mt-7 bg-purple-700 text-white px-5 py-1.5 rounded' to={-1}>
-        Go back
+    <section className='py-10 flex flex-col items-center'>
+      <h2 className='text-5xl font-medium text-gray-600'>Page Not Found!</h2>
+      <p className='mt-8 text-xl'>Sorry, we can't seem to find the page you were looking for.</p>
+      <Link
+        className='mt-10 bg-purple-600 text-white px-7 py-3 rounded-full transition hover:bg-purple-700'
+        to='/'
+      >
+        Go to homepage
       </Link>
     </section>
   );

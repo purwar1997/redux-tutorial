@@ -1,168 +1,134 @@
-import { createSlice, nanoid, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
-import { sub } from "date-fns";
-import axios from "axios";
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { sub } from 'date-fns';
+import axios from 'axios';
 
-const POSTS_URL = "https://jsonplaceholder.typicode.com/posts";
+const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
 
-export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
+const initialState = {
+  status: 'idle',
+  posts: [],
+  error: null,
+};
+
+// Redux actions and state should only contain plain JS values like objects, arrays and primitives. Don't put class
+// instances and functions into Redux. That's why ISO string has been assigned to date field rather than instance of
+// Date class.
+
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   const response = await axios.get(POSTS_URL);
-  return response.data;
+  let minute = 1;
+
+  const posts = response.data.map(post => {
+    post.date = sub(new Date(), { minutes: minute++ }).toISOString();
+    post.reactions = {
+      thumbsUp: 0,
+      wow: 0,
+      heart: 0,
+      rocket: 0,
+      coffee: 0,
+    };
+
+    return post;
+  });
+
+  return posts;
 });
 
-export const addNewPost = createAsyncThunk("posts/addNewPost", async post => {
-  const response = await axios.post(POSTS_URL, post);
-  return response.data;
+export const addNewPost = createAsyncThunk('posts/addNewPost', async newPost => {
+  const response = await axios.post(POSTS_URL, newPost);
+  const post = response.data;
+
+  post.date = new Date().toISOString();
+  post.reactions = {
+    thumbsUp: 0,
+    wow: 0,
+    heart: 0,
+    rocket: 0,
+    coffee: 0,
+  };
+
+  return post;
 });
 
-export const updatePost = createAsyncThunk("posts/updatePost", async post => {
+export const updatePost = createAsyncThunk('posts/editPost', async post => {
   try {
-    const response = await axios.put(`${POSTS_URL}/${post.id}`, post);
+    const response = await axios.put(POSTS_URL, post);
     return response.data;
   } catch (error) {
     return post;
   }
 });
 
-export const deletePost = createAsyncThunk("posts/deletePost", async postId => {
+export const deletePost = createAsyncThunk('posts/deletePost', async postId => {
   await axios.delete(`${POSTS_URL}/${postId}`);
   return postId;
 });
 
-const initialState = {
-  posts: [],
-  status: "idle",
-  error: null,
-  count: 0,
-};
+// When using Immer, you can either mutate an existing state object, or return a new state value yourself, but not
+// both at the same time
 
 const postsSlice = createSlice({
-  name: "posts",
+  name: 'posts',
   initialState,
   reducers: {
-    addPost: {
-      prepare(title, content, userId) {
-        return {
-          payload: {
-            id: nanoid(),
-            title,
-            body: content,
-            userId,
-            date: new Date().toISOString(),
-            reactions: {
-              thumbsUp: 0,
-              wow: 0,
-              heart: 0,
-              rocket: 0,
-              coffee: 0,
-            },
-          },
-        };
-      },
-      reducer(state, action) {
-        state.posts.push(action.payload);
-      },
-    },
-
     addReaction(state, action) {
-      const { postId, reaction } = action.payload;
-
+      const { postId, reactionType } = action.payload;
       const post = state.posts.find(post => post.id === postId);
 
       if (post) {
-        post.reactions[reaction]++;
+        post.reactions[reactionType]++;
       }
-
-      const posts = state.posts.filter(post => post.id !== postId);
-      state.posts = [...posts, post];
-    },
-
-    increaseCount(state) {
-      state.count = state.count + 1;
     },
   },
   extraReducers(builder) {
     builder
-      .addCase(fetchPosts.pending, (state, action) => {
-        state.status = "loading";
+      .addCase(fetchPosts.pending, state => {
+        state.status = 'loading';
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
-        let minute = 1;
-
-        const loadedPosts = action.payload.map(post => {
-          post.date = sub(new Date(), { minutes: minute++ }).toISOString();
-          post.reactions = {
-            thumbsUp: 0,
-            wow: 0,
-            heart: 0,
-            rocket: 0,
-            coffee: 0,
-          };
-
-          return post;
-        });
-
-        state.status = "succeeded";
-        state.posts = state.posts.concat(loadedPosts);
+        state.status = 'succeded';
+        state.posts = state.posts.concat(action.payload);
       })
       .addCase(fetchPosts.rejected, (state, action) => {
-        state.status = "failed";
+        state.status = 'failed';
         state.error = action.error.message;
       })
       .addCase(addNewPost.fulfilled, (state, action) => {
-        const post = action.payload;
-
-        post.date = new Date().toISOString();
-        post.userId = Number(post.userId);
-        post.reactions = {
-          thumbsUp: 0,
-          wow: 0,
-          heart: 0,
-          rocket: 0,
-          coffee: 0,
-        };
-
-        state.posts.push(post);
+        state.posts.push(action.payload);
       })
       .addCase(updatePost.fulfilled, (state, action) => {
         const { id, title, body, userId } = action.payload;
-
         const post = state.posts.find(post => post.id === id);
 
-        if (!post) {
-          throw new Error("Post not found");
+        if (post) {
+          post.title = title;
+          post.body = body;
+          post.userId = userId;
+          post.date = new Date().toISOString();
         }
-
-        post.title = title;
-        post.body = body;
-        post.userId = userId;
-        post.date = new Date().toISOString();
-
-        const posts = state.posts.filter(post => post.id !== id);
-        state.posts = [...posts, post];
       })
       .addCase(deletePost.fulfilled, (state, action) => {
         const post = state.posts.find(post => post.id === action.payload);
 
-        if (!post) {
-          throw new Error("Post not found");
+        if (post) {
+          state.posts = state.posts.filter(post => post.id !== action.payload);
         }
-
-        state.posts = state.posts.filter(post => post.id !== action.payload);
       });
   },
 });
 
-export const getAllPosts = store => store.posts.posts;
-export const getPostStatus = store => store.posts.status;
-export const getPostError = store => store.posts.error;
-export const getPostCount = store => store.posts.count;
-export const getPostById = (store, postId) => store.posts.posts.find(post => post.id === postId);
+export const { addReaction } = postsSlice.actions;
 
-export const getPostsByUser = createSelector(
-  [getAllPosts, (store, userId) => userId],
-  (posts, userId) => posts.filter(post => post.userId === userId)
-);
+export const getAllPosts = state => state.posts.posts;
+export const getPostsStatus = state => state.posts.status;
+export const getPostsError = state => state.posts.error;
+export const getPostById = (state, postId) => state.posts.posts.find(post => post.id === postId);
+// export const getUserPosts = (state, userId) => {
+//   const allPosts = getAllPosts(state);
+//   return allPosts.filter(post => post.userId === userId);
+// };
 
-export const { addReaction, increaseCount } = postsSlice.actions;
+export const getUserPosts = (state, userId) =>
+  state.posts.posts.filter(post => post.userId === userId);
 
 export default postsSlice.reducer;

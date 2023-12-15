@@ -2,34 +2,35 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNewPost } from '../app/slices/postsSlice';
+import { getAllUsers } from '../app/slices/usersSlice';
 
 const AddPostForm = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [userId, setUserId] = useState('');
+  const [postTitle, setPostTitle] = useState('');
+  const [postContent, setPostContent] = useState('');
+  const [postAuthor, setPostAuthor] = useState('');
   const [requestStatus, setRequestStatus] = useState('idle');
 
-  const users = useSelector(store => store.users);
+  const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
-  const canSave = [title, content, userId].every(Boolean) && requestStatus === 'idle';
+  const canSave = [postTitle, postContent, postAuthor].every(Boolean) && requestStatus === 'idle';
 
   const onSavePostClicked = async () => {
     try {
-      // unwrap() returns a promise after an async operation has succeeded or failed
       setRequestStatus('pending');
 
-      const post = await dispatch(addNewPost({ title, body: content, userId })).unwrap();
+      // dispatch returns a promise
+      // unwrap can only be used if thunks are produced using createAsyncThunk
+      // unwrap returns the result of a fulfilled promise
 
-      setTitle('');
-      setContent('');
-      setUserId('');
+      await dispatch(
+        addNewPost({ title: postTitle, body: postContent, userId: Number(postAuthor) })
+      ).unwrap();
 
-      navigate(`/post/${post.id}`);
+      navigate('/');
     } catch (error) {
-      console.log('Failure adding post', error);
+      console.log(error);
     } finally {
       setRequestStatus('idle');
     }
@@ -37,10 +38,10 @@ const AddPostForm = () => {
 
   return (
     <section>
-      <h2 className='text-2xl'>Add post</h2>
+      <h2 className='text-2xl'>Add new post</h2>
 
       <form className='mt-8 space-y-4'>
-        <div className='flex gap-3'>
+        <div className='flex gap-4'>
           <label className='w-28' htmlFor='postTitle'>
             Post title
           </label>
@@ -49,37 +50,37 @@ const AddPostForm = () => {
             className='flex-1 border border-gray-500 px-4 py-2.5 rounded focus:outline-none'
             type='text'
             id='postTitle'
-            value={title}
-            onChange={e => setTitle(e.target.value)}
+            value={postTitle}
+            onChange={e => setPostTitle(e.target.value)}
           />
         </div>
 
-        <div className='flex gap-3'>
+        <div className='flex gap-4'>
           <label className='w-28' htmlFor='postContent'>
             Post content
           </label>
 
           <textarea
-            className='flex-1 border border-gray-500 h-32 px-4 py-2.5 rounded focus:outline-none'
+            className='flex-1 border border-gray-500 h-36 resize-none px-4 py-2.5 rounded focus:outline-none'
             id='postContent'
-            value={content}
-            onChange={e => setContent(e.target.value)}
+            value={postContent}
+            onChange={e => setPostContent(e.target.value)}
           />
         </div>
 
-        <div className='flex gap-3'>
+        <div className='flex gap-4'>
           <label className='w-28' htmlFor='postAuthor'>
             Post author
           </label>
 
           <select
-            className='flex-1 border border-gray-500 px-3 py-2.5 rounded focus:outline-none cursor-pointer'
+            className='flex-1 border border-gray-500 px-3 py-2 rounded focus:outline-none'
             id='postAuthor'
-            defaultValue=''
-            onChange={e => setUserId(e.target.value)}
+            value={postAuthor}
+            onChange={e => setPostAuthor(e.target.value)}
           >
             <option value='' disabled hidden>
-              -- Select an option--
+              -- Please choose an option --
             </option>
 
             {users.map(user => (
@@ -90,24 +91,14 @@ const AddPostForm = () => {
           </select>
         </div>
 
-        <div className='ml-[125px] flex gap-3'>
-          <button
-            className='w-20 border border-gray-500 rounded py-1.5'
-            type='button'
-            onClick={onSavePostClicked}
-            disabled={!canSave}
-          >
-            Save
-          </button>
-
-          <button
-            className='w-20 border border-gray-500 rounded py-1.5'
-            type='button'
-            onClick={() => navigate(-1)}
-          >
-            Cancel
-          </button>
-        </div>
+        <button
+          className='ml-32 border border-gray-500 px-5 py-1.5 rounded'
+          type='button'
+          onClick={onSavePostClicked}
+          disabled={!canSave}
+        >
+          {requestStatus === 'pending' ? 'Saving...' : 'Save'}
+        </button>
       </form>
     </section>
   );
