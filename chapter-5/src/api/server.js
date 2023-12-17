@@ -134,13 +134,13 @@ export const handlers = [
     });
   }),
 
-  http.get('/fakeAPI/posts/:postId', async ({ params }) => {
+  http.get('/fakeApi/posts/:postId', async ({ params }) => {
     const { postId } = params;
 
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
 
     if (!post) {
-      return HttpResponse(null, {
+      return new HttpResponse(null, {
         status: 404,
       });
     }
@@ -152,13 +152,41 @@ export const handlers = [
     });
   }),
 
-  http.delete('/fakeAPI/posts/:postId', async ({ params }) => {
+  http.put('/fakeApi/posts/:postId', async ({ request, params }) => {
+    const data = request.json();
+
+    const { title, content, userId } = data;
     const { postId } = params;
 
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
 
     if (!post) {
-      return HttpResponse(null, {
+      return new HttpResponse(null, {
+        status: 404,
+      });
+    }
+
+    post.title = title;
+    post.content = content;
+    post.user = db.user.findFirst({ where: { id: { equals: userId } } });
+    post.date = new Date().toISOString();
+
+    const updatedPost = db.post.update({ where: { id: { equals: postId } } }, post);
+
+    await delay(RESPONSE_DELAY_MS);
+
+    return HttpResponse.json(serializePost(updatedPost), {
+      status: 200,
+    });
+  }),
+
+  http.delete('/fakeApi/posts/:postId', async ({ params }) => {
+    const { postId } = params;
+
+    const post = db.post.findFirst({ where: { id: { equals: postId } } });
+
+    if (!post) {
+      return new HttpResponse(null, {
         status: 404,
       });
     }
