@@ -2,7 +2,8 @@ import seedrandom from 'seedrandom';
 import { factory, primaryKey, oneOf, manyOf } from '@mswjs/data';
 import { nanoid } from '@reduxjs/toolkit';
 import { faker } from '@faker-js/faker';
-import { http, HttpResponse, delay } from 'msw';
+import { http, delay, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
 
 const NUM_USERS = 3;
 const POSTS_PER_USER = 3;
@@ -58,7 +59,6 @@ const db = factory({
     text: String,
     date: String,
     post: oneOf('post'),
-    user: oneOf('user'),
   },
   reaction: {
     id: primaryKey(nanoid),
@@ -106,7 +106,7 @@ const serializePost = post => ({
 /* MSW REST API handlers */
 
 export const handlers = [
-  http.get('/fakeApi/posts', async () => {
+  http.get('/api/posts', async () => {
     const posts = db.post.getAll().map(serializePost);
 
     await delay(RESPONSE_DELAY_MS);
@@ -116,14 +116,12 @@ export const handlers = [
     });
   }),
 
-  http.post('/fakeApi/posts', async ({ request }) => {
+  http.post('/api/posts', async ({ request }) => {
     const data = request.json();
 
-    data.date = new Date().toISOString();
+    data.user = db.user.findFirst({ where: { id: { equals: post.user } } });
     data.reactions = db.reaction.create();
-
-    const user = db.user.findFirst({ where: { id: { equals: post.userId } } });
-    data.user = user;
+    data.date = new Date().toISOString();
 
     const post = db.post.create(data);
 
@@ -134,7 +132,7 @@ export const handlers = [
     });
   }),
 
-  http.get('/fakeApi/posts/:postId', async ({ params }) => {
+  http.get('/api/posts/:postId', async ({ params }) => {
     const { postId } = params;
 
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
@@ -152,10 +150,9 @@ export const handlers = [
     });
   }),
 
-  http.put('/fakeApi/posts/:postId', async ({ request, params }) => {
+  http.put('/api/posts/:postId', async ({ request, params }) => {
     const data = request.json();
 
-    const { title, content, userId } = data;
     const { postId } = params;
 
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
@@ -166,12 +163,10 @@ export const handlers = [
       });
     }
 
-    post.title = title;
-    post.content = content;
-    post.user = db.user.findFirst({ where: { id: { equals: userId } } });
-    post.date = new Date().toISOString();
+    data.user = db.user.findFirst({ where: { id: { equals: data.user } } });
+    data.date = new Date().toISOString();
 
-    const updatedPost = db.post.update({ where: { id: { equals: postId } } }, post);
+    const updatedPost = db.post.update({ where: { id: { equals: postId } } }, data);
 
     await delay(RESPONSE_DELAY_MS);
 
@@ -180,7 +175,7 @@ export const handlers = [
     });
   }),
 
-  http.delete('/fakeApi/posts/:postId', async ({ params }) => {
+  http.delete('/api/posts/:postId', async ({ params }) => {
     const { postId } = params;
 
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
@@ -199,4 +194,45 @@ export const handlers = [
       status: 200,
     });
   }),
+
+  http.put('/api/posts/:postId/reactions', async ({ request, params }) => {
+    const { postId } = params;
+    const { reaction } = request.json();
+
+    const post = db.post.findFirst({ where: { id: { equals: postId } } });
+
+    if (!post) {
+      return new HttpResponse(null, {
+        status: 404,
+      });
+    }
+
+    const updatedPost = db.post.findFirst(
+      { where: { id: { equals: postId } } },
+      {
+        reactions: {
+          ...post.reactions,
+          [reaction]: post.reactions[reaction] + 1,
+        },
+      }
+    );
+
+    await delay(RESPONSE_DELAY_MS);
+
+    return HttpResponse.json(serializePost(updatedPost), {
+      status: 200,
+    });
+  }),
+
+  http.get('/api/users', async () => {
+    const users = db.user.getAll();
+
+    await delay(RESPONSE_DELAY_MS);
+
+    return HttpResponse.json(users, {
+      status: 200,
+    });
+  }),
 ];
+
+export const server = setupServer(...handlers);
