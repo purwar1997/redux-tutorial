@@ -41,8 +41,8 @@ if (useSeededRNG) {
 const db = factory({
   user: {
     id: primaryKey(nanoid),
-    name: String,
-    username: String,
+    name: faker.person.fullname,
+    username: faker.internet.username,
     posts: manyOf('post'),
   },
   post: {
@@ -71,13 +71,6 @@ const db = factory({
   },
 });
 
-const createUserData = () => {
-  return {
-    name: faker.person.fullname(),
-    username: faker.internet.userName(),
-  };
-};
-
 const createPostData = user => {
   return {
     title: faker.lorem.words(),
@@ -90,7 +83,7 @@ const createPostData = user => {
 
 // Create an initial set of users and posts
 for (const i = 0; i < NUM_USERS; i++) {
-  const author = db.user.create(createUserData());
+  const author = db.user.create();
 
   for (const j = 0; j < POSTS_PER_USER; j++) {
     const newPost = createPostData(author);
@@ -105,7 +98,7 @@ const serializePost = post => ({
 
 /* MSW REST API handlers */
 
-export const handlers = [
+const handlers = [
   http.get('/api/posts', async () => {
     const posts = db.post.getAll().map(serializePost);
 
@@ -117,7 +110,7 @@ export const handlers = [
   }),
 
   http.post('/api/posts', async ({ request }) => {
-    const data = request.json();
+    const data = await request.json();
 
     data.user = db.user.findFirst({ where: { id: { equals: post.user } } });
     data.reactions = db.reaction.create();
@@ -151,7 +144,7 @@ export const handlers = [
   }),
 
   http.put('/api/posts/:postId', async ({ request, params }) => {
-    const data = request.json();
+    const data = await request.json();
 
     const { postId } = params;
 
@@ -166,7 +159,7 @@ export const handlers = [
     data.user = db.user.findFirst({ where: { id: { equals: data.user } } });
     data.date = new Date().toISOString();
 
-    const updatedPost = db.post.update({ where: { id: { equals: postId } } }, data);
+    const updatedPost = db.post.update({ where: { id: { equals: postId } }, data });
 
     await delay(RESPONSE_DELAY_MS);
 
@@ -188,6 +181,10 @@ export const handlers = [
 
     const deletedPost = db.post.delete({ where: { id: { equals: postId } } });
 
+    if (deletedPost) {
+      db.reaction.delete({ where: { post: { equals: postId } } });
+    }
+
     await delay(RESPONSE_DELAY_MS);
 
     return HttpResponse.json(serializePost(deletedPost), {
@@ -197,7 +194,7 @@ export const handlers = [
 
   http.put('/api/posts/:postId/reactions', async ({ request, params }) => {
     const { postId } = params;
-    const { reaction } = request.json();
+    const { reaction } = await request.json();
 
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
 
@@ -207,15 +204,23 @@ export const handlers = [
       });
     }
 
-    const updatedPost = db.post.findFirst(
-      { where: { id: { equals: postId } } },
-      {
-        reactions: {
-          ...post.reactions,
-          [reaction]: post.reactions[reaction] + 1,
+    const updatedPost = db.post.update({
+      where: {
+        id: { equals: postId },
+      },
+      data: {
+        reactions(prevReactions, post) {
+          return db.reaction.update({
+            where: {
+              id: { equals: post.reactions.id },
+            },
+            data: {
+              [reaction]: prevReactions[reaction] + 1,
+            },
+          });
         },
-      }
-    );
+      },
+    });
 
     await delay(RESPONSE_DELAY_MS);
 
