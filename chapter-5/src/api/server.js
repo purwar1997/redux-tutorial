@@ -106,9 +106,9 @@ const handlers = [
 
     return HttpResponse.json(posts, {
       status: 200,
+      statusText: 'Posts successfully fetched',
     });
   }),
-
   http.post('/api/posts', async ({ request }) => {
     const data = await request.json();
 
@@ -122,9 +122,9 @@ const handlers = [
 
     return HttpResponse.json(serializePost(post), {
       status: 201,
+      statusText: 'Post successfully created',
     });
   }),
-
   http.get('/api/posts/:postId', async ({ params }) => {
     const { postId } = params;
 
@@ -133,6 +133,7 @@ const handlers = [
     if (!post) {
       return new HttpResponse(null, {
         status: 404,
+        statusText: 'Post not found',
       });
     }
 
@@ -140,9 +141,9 @@ const handlers = [
 
     return HttpResponse.json(serializePost(post), {
       status: 200,
+      statusText: 'Post successfully fetched',
     });
   }),
-
   http.put('/api/posts/:postId', async ({ request, params }) => {
     const data = await request.json();
 
@@ -153,6 +154,7 @@ const handlers = [
     if (!post) {
       return new HttpResponse(null, {
         status: 404,
+        statusText: 'Post not found',
       });
     }
 
@@ -165,9 +167,9 @@ const handlers = [
 
     return HttpResponse.json(serializePost(updatedPost), {
       status: 200,
+      statusText: 'Post successfully updated',
     });
   }),
-
   http.delete('/api/posts/:postId', async ({ params }) => {
     const { postId } = params;
 
@@ -176,6 +178,7 @@ const handlers = [
     if (!post) {
       return new HttpResponse(null, {
         status: 404,
+        statusText: 'Post not found',
       });
     }
 
@@ -189,18 +192,19 @@ const handlers = [
 
     return HttpResponse.json(serializePost(deletedPost), {
       status: 200,
+      statusText: 'Post successfully deleted',
     });
   }),
-
   http.put('/api/posts/:postId/reactions', async ({ request, params }) => {
-    const { postId } = params;
     const { reaction } = await request.json();
+    const { postId } = params;
 
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
 
     if (!post) {
       return new HttpResponse(null, {
         status: 404,
+        statusText: 'Post not found',
       });
     }
 
@@ -226,9 +230,9 @@ const handlers = [
 
     return HttpResponse.json(serializePost(updatedPost), {
       status: 200,
+      statusText: 'Reaction successfully added to post',
     });
   }),
-
   http.get('/api/users', async () => {
     const users = db.user.getAll();
 
@@ -236,6 +240,7 @@ const handlers = [
 
     return HttpResponse.json(users, {
       status: 200,
+      statusText: 'Users successfully fetched',
     });
   }),
 ];
