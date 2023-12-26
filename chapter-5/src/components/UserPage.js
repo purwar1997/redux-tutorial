@@ -6,8 +6,8 @@ import { getUserById } from '../app/slices/usersSlice';
 const UserPage = () => {
   const { userId } = useParams();
 
-  const user = useSelector(state => getUserById(state, Number(userId)));
-  const posts = useSelector(state => getPostsByUser(state, Number(userId)));
+  const user = useSelector(state => getUserById(state, userId));
+  const posts = useSelector(state => getPostsByUser(state, userId));
 
   return (
     <section>
@@ -16,7 +16,10 @@ const UserPage = () => {
       <ul className='mt-8 space-y-3 list-disc'>
         {posts.map(post => (
           <li key={post.id}>
-            <Link className='underline-offset-2 hover:underline' to={`/posts/${post.id}`}>
+            <Link
+              className='text-purple-600 underline-offset-2 hover:underline'
+              to={`/posts/${post.id}`}
+            >
               {post.title}
             </Link>
           </li>

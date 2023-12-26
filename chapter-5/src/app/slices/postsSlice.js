@@ -1,8 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { sub } from 'date-fns';
-import axios from 'axios';
-
-const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
+import { client } from '../../api/client';
 
 const initialState = {
   status: 'idle',
@@ -10,58 +7,24 @@ const initialState = {
   error: null,
 };
 
-// Redux actions and state should only contain plain JS values like objects, arrays and primitives. Don't put class
-// instances and functions into Redux. That's why ISO string has been assigned to date field rather than instance of
-// Date class.
-
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-  const response = await axios.get(POSTS_URL);
-  let minute = 1;
-
-  const posts = response.data.map(post => {
-    post.date = sub(new Date(), { minutes: minute++ }).toISOString();
-    post.reactions = {
-      thumbsUp: 0,
-      wow: 0,
-      heart: 0,
-      rocket: 0,
-      coffee: 0,
-    };
-
-    return post;
-  });
-
-  return posts;
+  const response = await client.get('/api/posts');
+  return response.data;
 });
 
 export const addNewPost = createAsyncThunk('posts/addNewPost', async newPost => {
-  const response = await axios.post(POSTS_URL, newPost);
-  const post = response.data;
-
-  post.date = new Date().toISOString();
-  post.reactions = {
-    thumbsUp: 0,
-    wow: 0,
-    heart: 0,
-    rocket: 0,
-    coffee: 0,
-  };
-
-  return post;
+  const response = await client.post('/api/posts', newPost);
+  return response.data;
 });
 
 export const updatePost = createAsyncThunk('posts/editPost', async post => {
-  try {
-    const response = await axios.put(POSTS_URL, post);
-    return response.data;
-  } catch (error) {
-    return post;
-  }
+  const response = await client.put(`/api/posts/${post.id}`, post);
+  return response.data;
 });
 
 export const deletePost = createAsyncThunk('posts/deletePost', async postId => {
-  await axios.delete(`${POSTS_URL}/${postId}`);
-  return postId;
+  const response = await client.delete(`/api/posts/${postId}`);
+  return response.data.id;
 });
 
 // When using Immer, you can either mutate an existing state object, or return a new state value yourself, but not
@@ -97,14 +60,12 @@ const postsSlice = createSlice({
         state.posts.push(action.payload);
       })
       .addCase(updatePost.fulfilled, (state, action) => {
-        const { id, title, body, userId } = action.payload;
-        const post = state.posts.find(post => post.id === id);
+        const post = state.posts.find(post => post.id === action.payload.id);
 
         if (post) {
-          post.title = title;
-          post.body = body;
-          post.userId = userId;
-          post.date = new Date().toISOString();
+          state.posts = state.posts.map(post =>
+            post.id === action.payload.id ? action.payload : post
+          );
         }
       })
       .addCase(deletePost.fulfilled, (state, action) => {
@@ -126,7 +87,7 @@ export const getPostById = (state, postId) => state.posts.posts.find(post => pos
 
 export const getPostsByUser = (state, userId) => {
   const allPosts = getAllPosts(state);
-  return allPosts.filter(post => post.userId === userId);
+  return allPosts.filter(post => post.user === userId);
 };
 
 export default postsSlice.reducer;

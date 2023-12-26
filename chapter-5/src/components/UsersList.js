@@ -12,7 +12,7 @@ const UsersList = () => {
       <ul className='mt-8 space-y-3 list-disc'>
         {users.map(user => (
           <li key={user.id}>
-            <Link className='underline-offset-2 hover:underline' to={`${user.id}`}>
+            <Link className='text-purple-500 underline-offset-2 hover:underline' to={`${user.id}`}>
               {user.name}
             </Link>
           </li>
