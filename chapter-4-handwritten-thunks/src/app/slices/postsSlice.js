@@ -1,8 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { sub } from 'date-fns';
-import axios from 'axios';
-
-const POSTS_URL = 'https://jsonplaceholder.typicode.com/posts';
+import { client } from '../../api/client';
 
 const initialState = {
   status: 'idle',
@@ -10,64 +7,30 @@ const initialState = {
   error: null,
 };
 
-// Redux actions and state should only contain plain JS values like objects, arrays and primitives. Don't put class
-// instances and functions into Redux. That's why ISO string has been assigned to date field rather than instance of
-// Date class.
-
 export const fetchPosts = () => async dispatch => {
   dispatch(fetchPostsStarted());
 
   try {
-    const response = await axios.get(POSTS_URL);
-    let minute = 1;
-
-    const posts = response.data.map(post => {
-      post.date = sub(new Date(), { minutes: minute++ }).toISOString();
-      post.reactions = {
-        thumbsUp: 0,
-        wow: 0,
-        heart: 0,
-        rocket: 0,
-        coffee: 0,
-      };
-
-      return post;
-    });
-
-    dispatch(fetchPostsSucceded(posts));
+    const response = await client.get('/api/posts');
+    dispatch(fetchPostsSucceded(response.data));
   } catch (error) {
     dispatch(fetchPostsFailed(error.message));
   }
 };
 
 export const addNewPost = newPost => async dispatch => {
-  const response = await axios.post(POSTS_URL, newPost);
-  const post = response.data;
-
-  post.date = new Date().toISOString();
-  post.reactions = {
-    thumbsUp: 0,
-    wow: 0,
-    heart: 0,
-    rocket: 0,
-    coffee: 0,
-  };
-
-  dispatch(addPost(post));
+  const response = await client.post('/api/posts', newPost);
+  dispatch(addPost(response.data));
 };
 
 export const updatePost = post => async dispatch => {
-  try {
-    const response = await axios.put(POSTS_URL, post);
-    dispatch(editPost(response.data));
-  } catch (error) {
-    dispatch(editPost(post));
-  }
+  const response = await client.put(`/api/posts/${post.id}`, post);
+  dispatch(editPost(response.data));
 };
 
 export const deletePost = postId => async dispatch => {
-  await axios.delete(`${POSTS_URL}/${postId}`);
-  dispatch(removePost(postId));
+  const response = await client.delete(`/api/posts/${postId}`);
+  dispatch(removePost(response.data.id));
 };
 
 // When using Immer, you can either mutate an existing state object, or return a new state value yourself, but not
@@ -83,7 +46,7 @@ const postsSlice = createSlice({
 
     fetchPostsSucceded(state, action) {
       state.status = 'succeded';
-      state.posts.push(...action.payload);
+      state.posts = state.posts.concat(action.payload);
     },
 
     fetchPostsFailed(state, action) {
@@ -96,14 +59,12 @@ const postsSlice = createSlice({
     },
 
     editPost(state, action) {
-      const { id, title, body, userId } = action.payload;
-      const post = state.posts.find(post => post.id === id);
+      const post = state.posts.find(post => post.id === action.payload.id);
 
       if (post) {
-        post.title = title;
-        post.body = body;
-        post.userId = userId;
-        post.date = new Date().toISOString();
+        state.posts = state.posts.map(post =>
+          post.id === action.payload.id ? action.payload : post
+        );
       }
     },
 
@@ -127,13 +88,13 @@ const postsSlice = createSlice({
 });
 
 export const {
+  fetchPostsStarted,
+  fetchPostsSucceded,
+  fetchPostsFailed,
   addPost,
   editPost,
   removePost,
   addReaction,
-  fetchPostsStarted,
-  fetchPostsSucceded,
-  fetchPostsFailed,
 } = postsSlice.actions;
 
 export const getAllPosts = state => state.posts.posts;

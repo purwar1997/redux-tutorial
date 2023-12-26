@@ -25,7 +25,7 @@ const AddPostForm = () => {
       // unwrap returns the result of a fulfilled promise
 
       await dispatch(
-        addNewPost({ title: postTitle, body: postContent, userId: Number(postAuthor) })
+        addNewPost({ title: postTitle, content: postContent, user: postAuthor })
       ).unwrap();
 
       navigate('/');

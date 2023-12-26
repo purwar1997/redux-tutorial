@@ -1,17 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const USERS_URL = 'https://jsonplaceholder.typicode.com/users';
+import { client } from '../../api/client';
 
 const initialState = [];
 
 export const fetchUsers = () => async dispatch => {
-  try {
-    const response = await axios.get(USERS_URL);
-    dispatch(fetchUsersSucceded(response.data));
-  } catch (error) {
-    console.log(error);
-  }
+  const response = await client.get('/api/users');
+  dispatch(fetchUsersSucceded(response.data));
 };
 
 const usersSlice = createSlice({

@@ -7,6 +7,7 @@ const initialState = [
     title: 'Javascript',
     content:
       'Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos ex sapiente doloremque consequatur architecto, laboriosam beatae non fugiat labore repudiandae, animi fugit sit saepe enim laborum numquam omnis temporibus veniam!',
+    userId: '2',
     date: sub(new Date(), { minutes: 10 }).toISOString(),
     reactions: {
       thumbsUp: 0,
@@ -21,6 +22,7 @@ const initialState = [
     title: 'Typescript for react',
     content:
       'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem provident corporis deleniti deserunt, tempora accusantium. Neque dolores fuga impedit, voluptate soluta quia a. Ratione neque quasi nulla, inventore voluptate consequuntur?',
+    userId: '4',
     date: sub(new Date(), { minutes: 5 }).toISOString(),
     reactions: {
       thumbsUp: 0,

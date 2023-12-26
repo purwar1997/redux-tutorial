@@ -13,10 +13,10 @@ const ReactionButtons = ({ post }) => {
   };
 
   return (
-    <div className='flex gap-5'>
+    <div className='flex gap-3'>
       {Object.entries(reactionEmojis).map(([emojiName, emojiSymbol]) => (
         <button
-          className='flex gap-2'
+          className='flex gap-2 border border-gray-400 rounded px-2.5 py-0.5'
           key={emojiName}
           onClick={() => dispatch(addReaction({ postId: post.id, reactionType: emojiName }))}
         >

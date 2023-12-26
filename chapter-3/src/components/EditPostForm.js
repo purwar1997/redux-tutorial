@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { editPost, getSinglePost } from '../app/slices/postsSlice';
+import { editPost, getPostById } from '../app/slices/postsSlice';
 import { getAllUsers } from '../app/slices/usersSlice';
 
 const EditPostForm = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(state => getSinglePost(state, postId));
+  const post = useSelector(state => getPostById(state, postId));
   const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
 

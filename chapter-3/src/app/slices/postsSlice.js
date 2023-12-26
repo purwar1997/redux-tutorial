@@ -23,7 +23,7 @@ const initialState = [
     content:
       'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Exercitationem provident corporis deleniti deserunt, tempora accusantium. Neque dolores fuga impedit, voluptate soluta quia a. Ratione neque quasi nulla, inventore voluptate consequuntur?',
     date: sub(new Date(), { minutes: 5 }).toISOString(),
-    userId: '1',
+    userId: '5',
     reactions: {
       thumbsUp: 0,
       wow: 0,
@@ -108,6 +108,6 @@ const postsSlice = createSlice({
 export const { addPost, editPost, deletePost, addReaction } = postsSlice.actions;
 
 export const getAllPosts = state => state.posts;
-export const getSinglePost = (state, postId) => state.posts.find(post => post.id === postId);
+export const getPostById = (state, postId) => state.posts.find(post => post.id === postId);
 
 export default postsSlice.reducer;

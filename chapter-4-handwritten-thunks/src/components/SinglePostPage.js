@@ -12,7 +12,7 @@ const SinglePostPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(state => getPostById(state, Number(postId)));
+  const post = useSelector(state => getPostById(state, postId));
   const dispatch = useDispatch();
 
   const onDeletePostClicked = async () => {
@@ -21,7 +21,7 @@ const SinglePostPage = () => {
     if (confirmToDelete) {
       try {
         setRequestStatus('pending');
-        await dispatch(deletePost(Number(postId)));
+        await dispatch(deletePost(postId));
         navigate('/', { replace: true });
       } catch (error) {
         console.log(error);
@@ -38,10 +38,10 @@ const SinglePostPage = () => {
   return (
     <section>
       <article className='border border-gray-500 p-5 rounded-xl space-y-3'>
-        <h3 className='text-xl'>{post.title}</h3>
-        <p>{post.body}</p>
+        <h3 className='text-2xl'>{post.title}</h3>
+        <p>{post.content}</p>
         <p>
-          - <PostAuthor authorId={post.userId} />, <TimeAgo timestamp={post.date} />
+          - <PostAuthor authorId={post.user} />, <TimeAgo timestamp={post.date} />
         </p>
         <ReactionButtons post={post} />
       </article>

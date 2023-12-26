@@ -8,13 +8,13 @@ const EditPostForm = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(state => getPostById(state, Number(postId)));
+  const post = useSelector(state => getPostById(state, postId));
   const users = useSelector(getAllUsers);
   const dispatch = useDispatch();
 
   const [postTitle, setPostTitle] = useState(post?.title);
-  const [postContent, setPostContent] = useState(post?.body);
-  const [postAuthor, setPostAuthor] = useState(post?.userId);
+  const [postContent, setPostContent] = useState(post?.content);
+  const [postAuthor, setPostAuthor] = useState(post?.user);
   const [requestStatus, setRequestStatus] = useState('idle');
 
   const canSave = [postTitle, postContent, postAuthor].every(Boolean) && requestStatus === 'idle';
@@ -25,10 +25,10 @@ const EditPostForm = () => {
 
       await dispatch(
         updatePost({
-          id: Number(postId),
+          id: postId,
           title: postTitle,
-          body: postContent,
-          userId: Number(postAuthor),
+          content: postContent,
+          user: postAuthor,
         })
       );
 

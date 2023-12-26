@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { deletePost, getSinglePost } from '../app/slices/postsSlice';
+import { deletePost, getPostById } from '../app/slices/postsSlice';
 import PostAuthor from './PostAuthor';
 import TimeAgo from './TimeAgo';
 import ReactionButtons from './ReactionButtons';
@@ -9,7 +9,7 @@ const SinglePostPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
 
-  const post = useSelector(state => getSinglePost(state, postId));
+  const post = useSelector(state => getPostById(state, postId));
   const dispatch = useDispatch();
 
   const onDeletePostClicked = () => {
@@ -28,7 +28,7 @@ const SinglePostPage = () => {
   return (
     <section>
       <article className='border border-gray-500 p-5 rounded-xl space-y-3'>
-        <h3 className='text-xl'>{post.title}</h3>
+        <h3 className='text-2xl'>{post.title}</h3>
         <p>{post.content}</p>
         <p>
           - <PostAuthor authorId={post.userId} />, <TimeAgo timestamp={post.date} />

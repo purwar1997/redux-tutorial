@@ -8,9 +8,9 @@ const PostExcerpt = ({ post }) => {
     <Link className='block' to={`posts/${post.id}`}>
       <article className='border border-gray-500 p-5 rounded-xl space-y-3'>
         <h3 className='text-xl'>{post.title}</h3>
-        <p>{post.body.substring(0, 100)}...</p>
+        <p>{post.content.substring(0, 100)}...</p>
         <p>
-          - <PostAuthor authorId={post.userId} />, <TimeAgo timestamp={post.date} />
+          - <PostAuthor authorId={post.user} />, <TimeAgo timestamp={post.date} />
         </p>
         <ReactionButtons post={post} />
       </article>

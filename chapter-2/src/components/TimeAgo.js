@@ -5,7 +5,7 @@ const TimeAgo = ({ timestamp }) => {
     addSuffix: true,
   });
 
-  return <span>{timeAgo}</span>;
+  return <span className='italic'>{timeAgo}</span>;
 };
 
 export default TimeAgo;
