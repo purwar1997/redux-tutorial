@@ -12,6 +12,7 @@ import AddPostForm from './components/AddPostForm';
 import EditPostForm from './components/EditPostForm';
 import UsersList from './components/UsersList';
 import UserPage from './components/UserPage';
+import NotificationsList from './components/NotificationsList';
 import ErrorPage from './components/ErrorPage';
 import NotFoundPage from './components/NotFoundPage';
 
@@ -31,6 +32,7 @@ const router = createBrowserRouter(
         <Route path=':userId' element={<UserPage />} />
       </Route>
 
+      <Route path='notifications' element={<NotificationsList />} />
       <Route path='*' element={<NotFoundPage />} />
     </Route>
   )
