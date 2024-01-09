@@ -9,7 +9,7 @@ import './index.css';
 
 const start = async () => {
   if (process.env.NODE_ENV === 'development') {
-    await worker.start();
+    await worker.start({ onUnhandledRequest: 'bypass' });
   }
 
   store.dispatch(fetchUsers());
