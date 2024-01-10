@@ -53,12 +53,6 @@ const db = factory({
     reactions: oneOf('reaction'),
     comments: manyOf('comment'),
   },
-  comment: {
-    id: primaryKey(String),
-    text: String,
-    date: String,
-    post: oneOf('post'),
-  },
   reaction: {
     id: primaryKey(nanoid),
     thumbsUp: Number,
