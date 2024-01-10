@@ -1,9 +1,10 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import PostAuthor from './PostAuthor';
 import TimeAgo from './TimeAgo';
 import ReactionButtons from './ReactionButtons';
 
-const PostExcerpt = ({ post }) => {
+const PostExcerpt = memo(({ post }) => {
   return (
     <Link className='block' to={`posts/${post.id}`}>
       <article className='border border-gray-500 p-5 rounded-xl space-y-3'>
@@ -16,6 +17,6 @@ const PostExcerpt = ({ post }) => {
       </article>
     </Link>
   );
-};
+});
 
 export default PostExcerpt;
