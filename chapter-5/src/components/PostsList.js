@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { compareDesc, parseISO } from 'date-fns';
+import { compareDesc } from 'date-fns';
 import { getAllPosts, fetchPosts, getPostsStatus, getPostsError } from '../app/slices/postsSlice';
 import PostExcerpt from './PostExcerpt';
 import Spinner from './Spinner';
@@ -22,9 +22,9 @@ const PostsList = () => {
   if (status === 'loading') {
     contentToRender = <Spinner text='Loading posts...' />;
   } else if (status === 'succeded') {
-    const postsOrderedByDate = posts
-      .slice()
-      .sort((postOne, postTwo) => compareDesc(parseISO(postOne.date), parseISO(postTwo.date)));
+    const postsOrderedByDate = posts.toSorted((postOne, postTwo) =>
+      compareDesc(postOne.date, postTwo.date)
+    );
 
     contentToRender = (
       <>

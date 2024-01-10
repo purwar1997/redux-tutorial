@@ -40,13 +40,14 @@ const Header = () => {
         </NavLink>
 
         <NavLink
+          className='underline-offset-4'
           style={({ isActive }) => ({ textDecoration: isActive ? 'underline' : '' })}
           to='notifications'
         >
-          <span className='underline-offset-4 hover:underline'>Notifications</span>
+          <span className='hover:underline'>Notifications</span>
 
           {unreadNotifications.length > 0 && (
-            <span className='ml-2.5 bg-white px-1.5 text-black rounded'>
+            <span className='ml-2.5 bg-white px-1.5 text-purple-700 font-medium rounded'>
               {unreadNotifications.length}
             </span>
           )}
