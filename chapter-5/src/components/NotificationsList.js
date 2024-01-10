@@ -11,7 +11,7 @@ const NotificationsList = () => {
     const user = users.find(user => user.id === notification.user) || { name: 'Unknown user' };
 
     return (
-      <div>
+      <div key={notification.id}>
         <p>
           <span>{user.name}</span> {notification.message}
         </p>

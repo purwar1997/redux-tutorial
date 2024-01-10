@@ -4,6 +4,7 @@ import { nanoid } from '@reduxjs/toolkit';
 import { faker } from '@faker-js/faker';
 import { http, delay, HttpResponse } from 'msw';
 import { setupWorker } from 'msw/browser';
+import { parseISO } from 'date-fns';
 
 const NUM_USERS = 5;
 const POSTS_PER_USER = 3;
@@ -12,8 +13,7 @@ const RESPONSE_DELAY_MS = 2000;
 
 const useSeededRNG = true;
 
-// Initializing random number generator without a seed value. An unpredictable value will be returned everytime rng is
-// invoked.
+// Initializing random number generator without a seed value
 let rng = seedrandom();
 
 if (useSeededRNG) {
@@ -28,8 +28,7 @@ if (useSeededRNG) {
     localStorage.setItem('randomTimestampSeed', randomSeedString);
   }
 
-  // Initializing random number generator with a timestamp seed value. A predictable value will be returned everytime
-  // rng is invoked.
+  // Initializing random number generator with a seed value to produce reproducible results
   rng = seedrandom(randomSeedString);
 
   // Pass a seed value to generate consistent results
@@ -256,6 +255,67 @@ const handlers = [
       statusText: 'Users successfully fetched',
     });
   }),
+
+  http.get('/api/notifications', async ({ request }) => {
+    const url = new URL(request.url);
+    const since = url.searchParams.get('since');
+
+    const notifications = generateRandomNotifications(since);
+
+    await delay(RESPONSE_DELAY_MS);
+
+    return HttpResponse.json(notifications, {
+      status: 200,
+      statusText: 'Notifications successfully fetched',
+    });
+  }),
 ];
+
+/* Generating random notifications */
+
+const getRandomInteger = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(rng() * max - min + 1) + min;
+};
+
+const getRandomValueFromArray = array => {
+  const index = getRandomInteger(0, array.length - 1);
+  return array[index];
+};
+
+const notificationTemplates = [
+  'poked you',
+  'says hi!',
+  `is glad we're friends`,
+  'sent you a gift',
+  'liked your post',
+  'commented on your post',
+];
+
+function generateRandomNotifications(since) {
+  const now = new Date();
+  let pastDate;
+
+  if (since) {
+    pastDate = parseISO(since);
+  } else {
+    pastDate = new Date(now.valueOf());
+    pastDate.setMinutes(pastDate.getMinutes() - 30);
+  }
+
+  const numNotifications = getRandomInteger(1, 5);
+
+  const notifications = [...new Array(numNotifications)].map(() => {
+    return {
+      id: nanoid(),
+      message: getRandomValueFromArray(notificationTemplates),
+      user: getRandomValueFromArray(db.user.getAll()).id,
+      date: faker.date.between({ from: pastDate, to: now }).toISOString(),
+    };
+  });
+
+  return notifications;
+}
 
 export const worker = setupWorker(...handlers);

@@ -12,8 +12,7 @@ const RESPONSE_DELAY_MS = 2000;
 
 const useSeededRNG = true;
 
-// Initializing random number generator without a seed value. An unpredictable value will be returned everytime rng is
-// invoked.
+// Initializing random number generator without a seed value
 let rng = seedrandom();
 
 if (useSeededRNG) {
@@ -28,8 +27,7 @@ if (useSeededRNG) {
     localStorage.setItem('randomTimestampSeed', randomSeedString);
   }
 
-  // Initializing random number generator with a timestamp seed value. A predictable value will be returned everytime
-  // rng is invoked.
+  // Initializing random number generator with a seed value to produce reproducible results
   rng = seedrandom(randomSeedString);
 
   // Pass a seed value to generate consistent results
