@@ -312,6 +312,7 @@ function generateRandomNotifications(since) {
       message: getRandomValueFromArray(notificationTemplates),
       user: getRandomValueFromArray(db.user.getAll()).id,
       date: faker.date.between({ from: pastDate, to: now }).toISOString(),
+      read: false,
     };
   });
 

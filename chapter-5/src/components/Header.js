@@ -1,9 +1,12 @@
 import { Link, NavLink } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { fetchNotifications } from '../app/slices/notificationsSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchNotifications, getAllNotifications } from '../app/slices/notificationsSlice';
 
 const Header = () => {
   const dispatch = useDispatch();
+  const notifications = useSelector(getAllNotifications);
+
+  const unreadNotifications = notifications.filter(notification => !notification.read);
 
   return (
     <header className='h-20 px-24 flex justify-between items-center bg-purple-600'>
@@ -37,11 +40,16 @@ const Header = () => {
         </NavLink>
 
         <NavLink
-          className='underline-offset-4 hover:underline'
           style={({ isActive }) => ({ textDecoration: isActive ? 'underline' : '' })}
           to='notifications'
         >
-          Notifications
+          <span className='underline-offset-4 hover:underline'>Notifications</span>
+
+          {unreadNotifications.length > 0 && (
+            <span className='ml-2.5 bg-white px-1.5 text-black rounded'>
+              {unreadNotifications.length}
+            </span>
+          )}
         </NavLink>
       </nav>
 
