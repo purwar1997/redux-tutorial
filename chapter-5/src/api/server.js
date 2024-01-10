@@ -51,7 +51,6 @@ const db = factory({
     date: String,
     user: oneOf('user'),
     reactions: oneOf('reaction'),
-    comments: manyOf('comment'),
   },
   reaction: {
     id: primaryKey(nanoid),
