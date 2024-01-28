@@ -5,15 +5,7 @@ import PostExcerpt from './PostExcerpt';
 import Spinner from './Spinner';
 
 const PostsList = () => {
-  const {
-    data: posts = [],
-    isLoading,
-    isFetching,
-    isSuccess,
-    isError,
-    error,
-    refetch,
-  } = useGetPostsQuery();
+  const { data: posts = [], isFetching, isSuccess, isError, error, refetch } = useGetPostsQuery();
 
   const postsOrderedByDate = useMemo(
     () => posts.toSorted((postA, postB) => compareDesc(postA.date, postB.date)),
@@ -22,7 +14,7 @@ const PostsList = () => {
 
   let contentToRender;
 
-  if (isLoading || isFetching) {
+  if (isFetching) {
     contentToRender = <Spinner text='Loading posts...' />;
   } else if (isSuccess) {
     contentToRender = (
