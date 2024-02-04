@@ -3,15 +3,15 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
-  tagTypes: ['Posts', 'Post'],
+  tagTypes: ['Post'],
   endpoints: builder => ({
     getPosts: builder.query({
       query: () => '/posts',
-      providesTags: ['Posts'],
+      providesTags: ['Post'],
+      keepUnusedDataFor: 120,
     }),
     getPost: builder.query({
       query: postId => `/posts/${postId}`,
-      providesTags: ['Post'],
     }),
     addNewPost: builder.mutation({
       query: newPost => ({
@@ -19,7 +19,7 @@ const apiSlice = createApi({
         method: 'POST',
         body: newPost,
       }),
-      invalidatesTags: ['Posts'],
+      invalidatesTags: ['Post'],
     }),
     updatePost: builder.mutation({
       query: ({ postId, updates }) => ({
@@ -27,14 +27,13 @@ const apiSlice = createApi({
         method: 'PUT',
         body: updates,
       }),
-      invalidatesTags: ['Posts', 'Post'],
     }),
     deletePost: builder.mutation({
       query: postId => ({
         url: `/posts/${postId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Posts'],
+      invalidatesTags: ['Post'],
     }),
   }),
 });
