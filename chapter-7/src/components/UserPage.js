@@ -12,7 +12,7 @@ const UserPage = () => {
 
   const getPostsByUser = createSelector(
     [result => result.data, (result, userId) => userId],
-    (posts, userId) => posts.filter(post => post.user === userId)
+    (posts, userId) => posts?.filter(post => post.user === userId) ?? []
   );
 
   const { postsByUser, isFetching } = useGetPostsQuery(undefined, {

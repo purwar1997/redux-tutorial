@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import apiSlice from './apiSlice';
 
-export const extendedApiSlice = apiSlice.injectEndpoints({
+apiSlice.injectEndpoints({
   endpoints: builder => ({
     getUsers: builder.query({
       query: () => '/users',
@@ -9,11 +9,11 @@ export const extendedApiSlice = apiSlice.injectEndpoints({
   }),
 });
 
-const selectUsersResult = extendedApiSlice.endpoints.getUsers.select();
+const selectUsersResult = apiSlice.endpoints.getUsers.select();
 
 export const getAllUsers = createSelector(
   [selectUsersResult],
-  usersResult => usersResult?.data || []
+  usersResult => usersResult?.data ?? []
 );
 
 export const getUserById = createSelector(
@@ -21,4 +21,4 @@ export const getUserById = createSelector(
   (users, userId) => users.find(user => user.id === userId)
 );
 
-export const { useGetUsersQuery } = extendedApiSlice;
+export const { useGetUsersQuery } = apiSlice;
