@@ -1,8 +1,7 @@
-import { useDispatch } from 'react-redux';
-import { addReaction } from '../app/slices/postsSlice';
+import { useAddReactionMutation } from '../app/slices/apiSlice';
 
 const ReactionButtons = ({ post }) => {
-  const dispatch = useDispatch();
+  const [addReaction] = useAddReactionMutation();
 
   const reactionEmojis = {
     thumbsUp: '👍',
@@ -12,10 +11,10 @@ const ReactionButtons = ({ post }) => {
     coffee: '☕',
   };
 
-  const onReactionButtonClicked = (event, reactionType) => {
+  const onReactionButtonClicked = async (event, reactionType) => {
     event.preventDefault();
 
-    dispatch(addReaction({ postId: post.id, reactionType }));
+    await addReaction({ postId: post.id, reaction: reactionType }).unwrap();
   };
 
   return (

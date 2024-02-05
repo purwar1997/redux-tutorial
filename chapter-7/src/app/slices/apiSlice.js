@@ -40,6 +40,37 @@ const apiSlice = createApi({
       }),
       invalidatesTags: [{ type: 'Post', id: 'LIST' }],
     }),
+    addReaction: builder.mutation({
+      query: ({ postId, reaction }) => ({
+        url: `/posts/${postId}/reactions`,
+        method: 'PUT',
+        body: { reaction },
+      }),
+      onQueryStarted: async ({ postId, reaction }, { dispatch, queryFulfilled }) => {
+        const patchResultForAllPosts = dispatch(
+          apiSlice.util.updateQueryData('getPosts', undefined, posts => {
+            const post = posts.find(post => post.id === postId);
+
+            if (post) {
+              post.reactions[reaction]++;
+            }
+          })
+        );
+
+        const pathResultForSinglePost = dispatch(
+          apiSlice.util.updateQueryData('getPost', postId, post => {
+            post.reactions[reaction]++;
+          })
+        );
+
+        try {
+          await queryFulfilled;
+        } catch (error) {
+          patchResultForAllPosts.undo();
+          pathResultForSinglePost.undo();
+        }
+      },
+    }),
   }),
 });
 
@@ -49,6 +80,7 @@ export const {
   useAddNewPostMutation,
   useUpdatePostMutation,
   useDeletePostMutation,
+  useAddReactionMutation,
 } = apiSlice;
 
 export default apiSlice;
