@@ -4,11 +4,10 @@ import { nanoid } from '@reduxjs/toolkit';
 import { faker } from '@faker-js/faker';
 import { http, delay, HttpResponse } from 'msw';
 import { setupWorker } from 'msw/browser';
-import { parseISO } from 'date-fns';
+import { parseISO, sub } from 'date-fns';
 
-const NUM_USERS = 5;
-const POSTS_PER_USER = 3;
-const RECENT_NOTIFICATIONS_DAYS = 7;
+const NUM_OF_USERS = 5;
+const POSTS_PER_USER = 4;
 const RESPONSE_DELAY_MS = 2000;
 
 const useSeededRNG = true;
@@ -74,14 +73,14 @@ const createPostData = user => {
   return {
     title: faker.lorem.words(),
     content: faker.lorem.paragraph({ min: 5, max: 8 }),
-    date: faker.date.recent({ days: RECENT_NOTIFICATIONS_DAYS }).toISOString(),
+    date: faker.date.recent({ days: 30 }).toISOString(),
     reactions: db.reaction.create(),
     user,
   };
 };
 
 // Create an initial set of users and posts
-for (let i = 0; i < NUM_USERS; i++) {
+for (let i = 0; i < NUM_OF_USERS; i++) {
   const author = db.user.create(createUserData());
 
   for (let j = 0; j < POSTS_PER_USER; j++) {
@@ -132,7 +131,7 @@ const handlers = [
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
 
     if (!post) {
-      return new HttpResponse(null, {
+      throw new HttpResponse(null, {
         status: 404,
         statusText: 'Post not found',
       });
@@ -154,7 +153,7 @@ const handlers = [
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
 
     if (!post) {
-      return new HttpResponse(null, {
+      throw new HttpResponse(null, {
         status: 404,
         statusText: 'Post not found',
       });
@@ -179,7 +178,7 @@ const handlers = [
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
 
     if (!post) {
-      return new HttpResponse(null, {
+      throw new HttpResponse(null, {
         status: 404,
         statusText: 'Post not found',
       });
@@ -206,7 +205,7 @@ const handlers = [
     const post = db.post.findFirst({ where: { id: { equals: postId } } });
 
     if (!post) {
-      return new HttpResponse(null, {
+      throw new HttpResponse(null, {
         status: 404,
         statusText: 'Post not found',
       });
@@ -269,7 +268,7 @@ const handlers = [
 const getRandomInteger = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
-  return Math.floor(rng() * max - min + 1) + min;
+  return Math.floor(rng() * (max - min + 1) + min);
 };
 
 const getRandomValueFromArray = array => {
@@ -278,12 +277,12 @@ const getRandomValueFromArray = array => {
 };
 
 const notificationTemplates = [
-  'poked you',
-  'says hi!',
-  `is glad we're friends`,
-  'sent you a gift',
   'liked your post',
   'commented on your post',
+  'poked you',
+  'sent you a gift',
+  "is glad we're friends",
+  'says hi!',
 ];
 
 function generateRandomNotifications(since) {
@@ -293,8 +292,7 @@ function generateRandomNotifications(since) {
   if (since) {
     pastDate = parseISO(since);
   } else {
-    pastDate = new Date(now.valueOf());
-    pastDate.setMinutes(pastDate.getMinutes() - 30);
+    pastDate = sub(now, { minutes: 60 });
   }
 
   const numNotifications = getRandomInteger(1, 5);

@@ -1,5 +1,5 @@
-export async function client(endpoint, { body, ...customConfig }) {
-  const headers = { 'content-type': 'application/json' };
+export async function client(endpoint, body, customConfig) {
+  const headers = { 'Content-Type': 'application/json' };
 
   const config = {
     ...customConfig,
@@ -19,31 +19,32 @@ export async function client(endpoint, { body, ...customConfig }) {
 
     if (response.ok) {
       return {
-        status: response.status,
         headers: response.headers,
+        status: response.status,
+        statusText: response.statusText,
         url: response.url,
         data,
       };
     }
 
-    throw new Error(response.statusText);
+    throw new Error(response.statusText ?? 'Request failed');
   } catch (error) {
-    return Promise.reject(error.message ? error.message : 'Failed request');
+    return Promise.reject(error.message);
   }
 }
 
 client.get = function (endpoint, customConfig = {}) {
-  return client(endpoint, { ...customConfig, method: 'GET' });
+  return client(endpoint, undefined, { method: 'GET', ...customConfig });
 };
 
 client.post = function (endpoint, body, customConfig = {}) {
-  return client(endpoint, { body, ...customConfig, method: 'POST' });
+  return client(endpoint, body, { method: 'POST', ...customConfig });
 };
 
 client.put = function (endpoint, body, customConfig = {}) {
-  return client(endpoint, { body, ...customConfig, method: 'PUT' });
+  return client(endpoint, body, { method: 'PUT', ...customConfig });
 };
 
 client.delete = function (endpoint, customConfig = {}) {
-  return client(endpoint, { ...customConfig, method: 'DELETE' });
+  return client(endpoint, undefined, { method: 'DELETE', ...customConfig });
 };
